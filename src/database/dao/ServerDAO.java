@@ -7,39 +7,45 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.criteria.CriteriaQuery;
 
+import database.connection.DBConnection;
 import database.model.Server;
 
-public class ServerDAO  {
-	public ServerDAO(){}
-	private static final String PERSISTENCE_UNIT_NAME = "todos";
-	private static EntityManagerFactory factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-    EntityManager em = factory.createEntityManager();
-	
-	public void save(Server entity) {
-		em.persist(entity);
+public class ServerDAO {
+
+	private EntityManager em;
+
+	public ServerDAO(EntityManager em) {
+		this.em = em;
 	}
 
-	protected void delete(Object id, Class<Server> classe) {
-		Server entityToBeRemoved = em.getReference(classe, id);
+	public void save(Server entity) {
+		em.getTransaction().begin();
+		em.persist(entity);
+		em.getTransaction().commit();
+	}
 
+	public void delete(Object id, Class<Server> classe) {
+		em.getTransaction().begin();
+		Server entityToBeRemoved = em.getReference(classe, id);
 		em.remove(entityToBeRemoved);
+		em.getTransaction().commit();
 	}
 
 	public Server update(Server entity) {
 		return em.merge(entity);
+		
 	}
 
-//	public Server find(int entityID) {
-//		return em.find(Class<Server>,entityID);
-//	}
+	public Server find(int entityID) {
+		return em.find(Server.class, entityID);
+		
+	}
 
-	// Using the unchecked because JPA does not have a
-	// em.getCriteriaBuilder().createQuery()<Server> method
-//	@SuppressWarnings({ "unchecked", "rawtypes" })
-//	public List<Server> findAll() {
-//		CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
-//		cq.select(cq.from(entityClass));
-//		return em.createQuery(cq).getResultList();
-//	}
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Server> findAll() {
+		CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+		cq.select(cq.from(Server.class));
+		return em.createQuery(cq).getResultList();
+	}
 
 }

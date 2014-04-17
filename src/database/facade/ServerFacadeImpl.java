@@ -10,6 +10,7 @@ import database.model.Server;
 
 public class ServerFacadeImpl implements ServerFacade {
 	
+	
 	private ServerDAO serverDAO;
 	
 	public ServerFacadeImpl(ServerDAO dao){
@@ -27,18 +28,18 @@ public class ServerFacadeImpl implements ServerFacade {
 
 	@Override
 	public void delete(Server d) {
+		serverDAO.delete(d.getId(), Server.class);
 	}
 
 
 	@Override
 	public Server find(int entityID) {
-//		return serverDAO.find(entityID);
-		return null;
+		return serverDAO.find(entityID);
+		
 	}
-//
+
 	@Override
 	public List<Server> findAll() {
-//		return serverDAO.findAll();
-		return null;
+		return serverDAO.findAll();
 	}
 }

@@ -13,18 +13,18 @@ import monitoring.types.Type;
 @WebService
 public class HookTriggeredWS {
 
-	private LinkedBlockingDeque<Message> incoming;
 	private PrintWriter writer;
     private QueueProcessor queueProcessor;
     
 	public HookTriggeredWS() {
-		this.incoming =  new LinkedBlockingDeque<Message>();
 		try {
 			writer = new PrintWriter("VM-file-name.txt");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		queueProcessor = new QueueProcessor(incoming,writer);
+		queueProcessor = new QueueProcessor(writer);
+		queueProcessor.start();
+		
 		
 		
 //		Thread one = new Thread() {
@@ -50,12 +50,13 @@ public class HookTriggeredWS {
 		Command commandC = MessageHelper.getCommand(command);
 		Message message = new Message(id, typeT, commandC);
 		writeToFile("WS has been called");
-		incoming.offer(message);
-		if(!queueProcessor.isAlive()){
-			writeToFile("I am starting the thread");
-			queueProcessor.run();
-		}
-		writer.close();
+		queueProcessor.addTOQueue(message);
+		
+//		if(!queueProcessor.isAlive()){
+//			writeToFile("I am starting the thread");
+//			queueProcessor.run();
+//		}
+		
 	}
 	
 	private void writeToFile(String message) {

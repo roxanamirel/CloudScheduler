@@ -15,32 +15,40 @@ import database.model.Server;
 
 
 public class Main {
-	private static final String PERSISTENCE_UNIT_NAME = "todos";
-	  private static EntityManagerFactory factory;
      
 	  public static void main(String[] args) {
-	    factory = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-	    EntityManager em = factory.createEntityManager();
+	  
+	    EntityManager em = DBConnection.connect();
 	    // read the existing entries and write to console
-	    Query q = em.createQuery("select t from Server t");
-	    List<Server> todoList = q.getResultList();
-	    for (Server todo : todoList) {
-	      System.out.println(todo);
-	    }
-	    System.out.println("Size: " + todoList.size());
+//	    Query q = em.createQuery("select t from Server t");
+//	    List<Server> todoList = q.getResultList();
+//	    for (Server todo : todoList) {
+//	      System.out.println(todo);
+//	    }
+//	    System.out.println("Size: " + todoList.size());
 
 	    // create new todo
-	    em.getTransaction().begin();
-	    Server server = new Server();
-	    server.setRam(2);
-	    em.persist(server);
-	    em.getTransaction().commit();
-	    em.close();
-	    ServerDAO dao = new ServerDAO();
+//	    em.getTransaction().begin();
+//	    Server server = new Server();
+//	    server.setRam(2);
+//	    em.persist(server);
+//	    em.getTransaction().commit();
+	  
+	    
+	    ServerDAO dao = new ServerDAO(em);
 	    ServerFacade serverFacade = new ServerFacadeImpl(dao);
-	    Server serverx = new Server();
-	    serverx.setRam(90);
-	    Server s = serverFacade.update(serverx);
-	    System.out.println("Hello server "+ s.getRam());
+//	    Server serverx = new Server();
+//	    serverx.setRam(34885);
+//	    serverFacade.save(serverx);
+	    Server found = serverFacade.find(21);
+	    System.out.println("Found: "  + found);
+	   // serverFacade.delete(found);
+	    System.out.println("Found: "  + found);
+	   
+	    List<Server> servers = serverFacade.findAll();
+	    for(Server s:servers){
+	    	System.out.println(s.getId()+ "  "  + s.getRam());
+	    }
+	    em.close();
 	  }
 }
