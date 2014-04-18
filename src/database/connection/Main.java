@@ -40,10 +40,10 @@ public class Main {
 //	    Server serverx = new Server();
 //	    serverx.setRam(34885);
 //	    serverFacade.save(serverx);
-	    Server found = serverFacade.find(21);
-	    System.out.println("Found: "  + found);
-	   // serverFacade.delete(found);
-	    System.out.println("Found: "  + found);
+//	    Server found = serverFacade.find(21);
+//	    System.out.println("Found: "  + found);
+//	   // serverFacade.delete(found);
+//	    System.out.println("Found: "  + found);
 	   
 	    List<Server> servers = serverFacade.findAll();
 	    for(Server s:servers){

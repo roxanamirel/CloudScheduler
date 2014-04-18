@@ -28,30 +28,25 @@ public class QueueProcessor extends Thread {
 
 	@Override
 	public void run() {
-		writeToFile("Enter run method");
+		//writeToFile("Enter run method");
 		while (true) {
 			while (!incoming.isEmpty()) {
-				writeToFile("Size of the queue:" + incoming.size());
+				//writeToFile("Size of the queue:" + incoming.size());
 				Message message = incoming.pollFirst();
 				Server server = new Server();
 				server.setRam(Integer.parseInt(message.getId()));
 				serverFacade.save(server);
-				writeToFile("Queue Processor:" + message.toString());
-
+				//writeToFile("Queue Processor:" + message.toString());
 			}
-
 		}
 	}
 
 	private void writeToFile(String message) {
 		writer.append(message);
 		writer.append("\r\n");
-
 	}
 
 	public synchronized void addTOQueue(Message message) {
 		this.incoming.add(message);
-
 	}
-
 }

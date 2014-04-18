@@ -17,11 +17,11 @@ public class HookTriggeredWS {
     private QueueProcessor queueProcessor;
     
 	public HookTriggeredWS() {
-		try {
-			writer = new PrintWriter("VM-file-name.txt");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			writer = new PrintWriter("VM-file-name.txt");
+//		} catch (FileNotFoundException e) {
+//			e.printStackTrace();
+//		}
 		queueProcessor = new QueueProcessor(writer);
 		queueProcessor.start();
 		
@@ -44,12 +44,12 @@ public class HookTriggeredWS {
 	
 
 	@WebMethod
-	public void addMessageToQueue(String id, String command, String type) {
+	public void addMessageToQueue(String id, String type, String command) {
 		
 		Type typeT = MessageHelper.getType(type);
 		Command commandC = MessageHelper.getCommand(command);
 		Message message = new Message(id, typeT, commandC);
-		writeToFile("WS has been called");
+		//writeToFile("WS has been called");
 		queueProcessor.addTOQueue(message);
 		
 //		if(!queueProcessor.isAlive()){
@@ -59,10 +59,10 @@ public class HookTriggeredWS {
 		
 	}
 	
-	private void writeToFile(String message) {
-		      writer.append(message);	  
-	          writer.append("\r\n");
-	         
-	}
+//	private void writeToFile(String message) {
+//		      writer.append(message);	  
+//	          writer.append("\r\n");
+//	         
+//	}
 
 }

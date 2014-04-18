@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-2014-04-17 20:14:33.853 GMT:
- Booting Derby version The Apache Software Foundation - Apache Derby - 10.1.2.1 - (330608): instance c013800d-0145-7153-9341-00000600af20
-on database directory C:\Users\rroxa_000\workspace\databases\simpleDb 
+2014-04-18 10:35:52.755 GMT:
+ Booting Derby version The Apache Software Foundation - Apache Derby - 10.1.2.1 - (330608): instance c013800d-0145-7468-21c0-000004fcbca0
+on database directory /var/lib/one/workspace/databases/simpleDb 
 
 Database Class Loader started - derby.database.classpath=''
