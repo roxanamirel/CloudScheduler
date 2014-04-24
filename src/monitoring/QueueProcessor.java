@@ -1,49 +1,52 @@
 package monitoring;
 
-import java.io.PrintWriter;
 import java.util.concurrent.LinkedBlockingDeque;
-
-import javax.persistence.EntityManager;
-
-import database.connection.DBConnection;
-import database.dao.ServerDAO;
-import database.facade.ServerFacade;
-import database.facade.ServerFacadeImpl;
-import database.model.Server;
+import monitoring.util.FacadeFactory;
+import monitoring.util.ResourceAdapter;
+import monitoring.util.ResourceFactory;
+import database.facade.VirtualMachineFacade;
+import database.model.Resource;
+import database.model.VirtualMachine;
 
 public class QueueProcessor extends Thread {
 
-	private LinkedBlockingDeque<Message> incoming;
-	private PrintWriter writer;
-	private ServerDAO serverDAO;
-	private ServerFacade serverFacade;
-	private EntityManager em = DBConnection.connect();
+	private LinkedBlockingDeque<Message> incoming;	
 
-	public QueueProcessor(PrintWriter writer) {
+	public QueueProcessor() {
 		this.incoming = new LinkedBlockingDeque<Message>();
-		this.writer = writer;
-		this.serverDAO = new ServerDAO(em);
-		this.serverFacade = new ServerFacadeImpl(serverDAO);
 	}
 
 	@Override
 	public void run() {
-		//writeToFile("Enter run method");
 		while (true) {
 			while (!incoming.isEmpty()) {
-				//writeToFile("Size of the queue:" + incoming.size());
 				Message message = incoming.pollFirst();
-				Server server = new Server();
-				server.setRam(Integer.parseInt(message.getId()));
-				serverFacade.save(server);
-				//writeToFile("Queue Processor:" + message.toString());
+				writeMessageToDB(message);
 			}
 		}
 	}
 
-	private void writeToFile(String message) {
-		writer.append(message);
-		writer.append("\r\n");
+	private void writeMessageToDB(Message message) {
+		
+		Resource resource = ResourceFactory.create(message.getType());
+		FacadeFactory facadeFactory = new FacadeFactory();		
+		resource.setID(Integer.parseInt(message.getId()));
+		
+		ResourceAdapter.updateResource(resource);
+		
+		
+		//facade.save(resource);
+		
+		if (resource instanceof VirtualMachine) {
+			VirtualMachineFacade virtualMachineFacade = facadeFactory.createVirtualMachineFacade();
+			virtualMachineFacade.save((VirtualMachine)resource);
+		}
+//		
+//		if(resource instanceof Server){
+//			ServerFacade serverFacade = facadeFactory.createServerFacade();
+//			serverFacade.save((Server)resource);
+//		}
+		
 	}
 
 	public synchronized void addTOQueue(Message message) {

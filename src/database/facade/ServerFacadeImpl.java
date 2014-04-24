@@ -1,10 +1,6 @@
 package database.facade;
 
 import java.util.List;
-
-import javax.ejb.EJB;
-import javax.inject.Inject;
-
 import database.dao.ServerDAO;
 import database.model.Server;
 
@@ -28,7 +24,7 @@ public class ServerFacadeImpl implements ServerFacade {
 
 	@Override
 	public void delete(Server d) {
-		serverDAO.delete(d.getId(), Server.class);
+		serverDAO.delete(d.getID(), Server.class);
 	}
 
 

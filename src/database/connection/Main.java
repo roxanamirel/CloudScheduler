@@ -8,9 +8,13 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import database.dao.ServerDAO;
+import database.dao.VirtualMachineDAO;
 import database.facade.ServerFacade;
 import database.facade.ServerFacadeImpl;
+import database.facade.VirtualMachineFacade;
+import database.facade.VirtualMachineFacadeImpl;
 import database.model.Server;
+import database.model.VirtualMachine;
 
 
 
@@ -38,17 +42,27 @@ public class Main {
 	    ServerDAO dao = new ServerDAO(em);
 	    ServerFacade serverFacade = new ServerFacadeImpl(dao);
 //	    Server serverx = new Server();
-//	    serverx.setRam(34885);
+//	    serverx.setID(1);
 //	    serverFacade.save(serverx);
-//	    Server found = serverFacade.find(21);
-//	    System.out.println("Found: "  + found);
-//	   // serverFacade.delete(found);
-//	    System.out.println("Found: "  + found);
-	   
+	    Server found = serverFacade.find(41);
+	    System.out.println("Found: "  + found);
+	   // serverFacade.delete(found);
+	    System.out.println("Found: "  + found);
 	    List<Server> servers = serverFacade.findAll();
 	    for(Server s:servers){
-	    	System.out.println(s.getId()+ "  "  + s.getRam());
+	    	System.out.println(s.getID()+ "  " );
 	    }
+	    System.out.println("------------------------------------");
+	    VirtualMachineDAO vmDAO = new VirtualMachineDAO(em);
+	    VirtualMachineFacade vmFacade = new VirtualMachineFacadeImpl(vmDAO);
+	    VirtualMachine vm = new VirtualMachine();
+	    vm.setID(1);
+	    vmFacade.save(vm);
+	    List<VirtualMachine> vms = vmFacade.findAll();
+	    for(VirtualMachine v:vms){
+	    	System.out.println(v.getID()+ "  " );
+	    }	
+			
 	    em.close();
 	  }
 }
