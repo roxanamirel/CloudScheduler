@@ -18,7 +18,7 @@ public class CPU extends ITComputingResource {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
 	@OneToMany(mappedBy = "cpu", cascade = CascadeType.PERSIST)
-	private List<CPUCore> CPU;
+	private List<CPUCore> cores;
 
 	public CPU() {
 	}
@@ -34,21 +34,20 @@ public class CPU extends ITComputingResource {
 	}
 
 	public List<CPUCore> getCPU() {
-		return CPU;
+		return cores;
 	}
 
 	public void setCPU(List<CPUCore> cPU) {
-		CPU = cPU;
+		cores = cPU;
 	}
 
-	public float getAllCPU() {
-		Iterator<CPUCore> it = CPU.iterator();
+	public float getTotalFrequency() {
+		Iterator<CPUCore> it = cores.iterator();
 		float cpu = 0;
 		while (it.hasNext()) {
-			CPUCore aux = it.next();
-			cpu += aux.getFrequency() * aux.getWeight();
+			CPUCore core = it.next();
+			cpu += core.getFrequency() * core.getWeight();
 		}
-
 		return cpu;
 	}
 

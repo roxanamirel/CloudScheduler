@@ -13,8 +13,8 @@ public class CPUCore extends ITComputingResource {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
 	private CPU cpu;
-	private float Frequency;
-	private float Weight;
+	private float frequency;
+	private float weight;
 
 	public CPUCore() {
 	}
@@ -31,19 +31,19 @@ public class CPUCore extends ITComputingResource {
 	}
 
 	public float getFrequency() {
-		return Frequency;
+		return frequency;
 	}
 
 	public void setFrequency(float frequency) {
-		Frequency = frequency;
+		this.frequency = frequency;
 	}
 
 	public float getWeight() {
-		return Weight;
+		return weight;
 	}
 
 	public void setWeight(float weight) {
-		Weight = weight;
+		this.weight = weight;
 	}
 
 	/**

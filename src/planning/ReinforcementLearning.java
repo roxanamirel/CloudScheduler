@@ -45,7 +45,7 @@ public class ReinforcementLearning{
 		 Node nextNode = null;
 		 //4. iterate through policies
 		 for(PolicyInstance policy: broken_GPI_KPI_Policies){
-			Resource subject = policy.resource;
+			Resource subject = policy.getResource();
 			if(subject instanceof VirtualMachine){
 				VirtualMachine vm = (VirtualMachine)subject;
 				Server deploymentServer = findBestMatchingServer(dataCenter, vm);

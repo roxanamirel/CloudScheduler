@@ -3,9 +3,12 @@ package monitoring.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.persistence.internal.jpa.parsing.jpql.antlr.JPQLParser.selectItem_return;
+
+import models.ServerModel;
 import models.VMModel;
+import services.ServerService;
 import services.VMService;
-import database.facade.ServerFacade;
 import database.model.CPU;
 import database.model.CPUCore;
 import database.model.RAM;
@@ -32,48 +35,19 @@ public class ResourceAdapter {
 				// virtualMachine.setHost(constructHost(model));
 				// constructHost(model);
 			} catch (ServiceCenterAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
+		} else if (resource instanceof Server) {
+			Server server = (Server) resource;
+			ServerService serverService = (ServerService) CloudManagerFactory
+					.getService(ServiceType.SERVER);
+			try {
+				ServerModel model = serverService.getById(resource.getID());
+				//model.s
+			} catch (ServiceCenterAccessException e) {
+				e.printStackTrace();
+			}
 		}
-	}
-
-	private static void constructHost(VMModel model) {
-		Server host1 = new Server();
-		Server host2 = new Server();
-		host1.setID(52);
-		host2.setID(55);
-		RAM ram = new RAM();
-		ram.setCapacity(3.7f);
-		host1.setRAM(ram);
-		List<CPUCore> cores = new ArrayList<CPUCore>();
-
-		for (int i = 0; i < 4; i++) {
-			CPUCore core = new CPUCore();
-			core.setFrequency(3.07f);
-			cores.add(core);
-		}
-		CPU cpu = new CPU();
-		cpu.setCPU(cores);
-		host1.setCPU(cpu);
-		List<CPUCore> corees = new ArrayList<CPUCore>();
-		for (int i = 0; i < 8; i++) {
-			CPUCore core = new CPUCore();
-			core.setFrequency(2.93f);
-			corees.add(core);
-		}
-
-		CPU cpuu = new CPU();
-		cpu.setCPU(corees);
-		host2.setCPU(cpuu);
-		RAM ramm = new RAM();
-		ramm.setCapacity(5.8f);
-		host2.setRAM(ramm);
-		FacadeFactory facadeFactory = new FacadeFactory();
-		ServerFacade serverFacade = facadeFactory.createServerFacade();
-		serverFacade.save(host1);
-		serverFacade.save(host2);
 
 	}
 

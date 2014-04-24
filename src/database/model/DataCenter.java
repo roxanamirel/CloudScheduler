@@ -2,8 +2,12 @@ package database.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import reasoning.*;
@@ -12,10 +16,18 @@ import reasoning.*;
 @Table(name = "DataCenter")
 public class DataCenter
 {
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
+	
+	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.PERSIST)
 	private List<Server> serverPool;
+	
+	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.PERSIST)
 	private List<VirtualMachine> VMPool;
-	private List<Policy> PolicyPool;
+		
+	private List<Policy> policyPool;
+	
 	public List<Resource> getAllResources()
 	{
 		ArrayList<Resource> all = new ArrayList<Resource>();
@@ -64,14 +76,12 @@ public class DataCenter
 	 * @return the policyPool
 	 */
 	public List<Policy> getPolicyPool() {
-		return PolicyPool;
+		return policyPool;
 	}
 	/**
 	 * @param policyPool the policyPool to set
 	 */
 	public void setPolicyPool(List<Policy> policyPool) {
-		PolicyPool = policyPool;
+		this.policyPool = policyPool;
 	}
-	
-
 }

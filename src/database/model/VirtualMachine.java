@@ -2,10 +2,7 @@ package database.model;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -14,12 +11,22 @@ import javax.persistence.Table;
 public class VirtualMachine extends ApplicationResource {
 	@Id
 	private int ID;
+	
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private CPU CPU;
+	
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private RAM RAM;
-	private HDD HDD;
+	
+	@OneToOne(cascade = CascadeType.PERSIST)
+	private DataCenter dataCenter;
+	
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private Server host;
+	
+	private HDD HDD;
+	
+	
 
 	public VirtualMachine() {
 	}
@@ -90,6 +97,18 @@ public class VirtualMachine extends ApplicationResource {
 	 */
 	public void setHost(Server host) {
 		this.host = host;
+	}
+	/**
+	 * @return the dataCenter
+	 */
+	public DataCenter getDataCenter() {
+		return dataCenter;
+	}
+	/**
+	 * @param dataCenter the dataCenter to set
+	 */
+	public void setDataCenter(DataCenter dataCenter) {
+		this.dataCenter = dataCenter;
 	}
 
 }

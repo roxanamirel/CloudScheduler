@@ -20,6 +20,9 @@ public class Server extends ITComputingResource {
 	private RAM RAM;
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private HDD HDD;
+	@OneToOne(cascade = CascadeType.PERSIST)
+	private DataCenter dataCenter;
+	
 	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST)
 	private List<VirtualMachine> runningVMs;
 
@@ -102,6 +105,20 @@ public class Server extends ITComputingResource {
 	public String toString() {
 		return "Server [CPU=" + CPU + ", RAM=" + RAM + ", HDD=" + HDD
 				+ ", runningVMs=" + runningVMs + "]";
+	}
+
+	/**
+	 * @return the dataCenter
+	 */
+	public DataCenter getDataCenter() {
+		return dataCenter;
+	}
+
+	/**
+	 * @param dataCenter the dataCenter to set
+	 */
+	public void setDataCenter(DataCenter dataCenter) {
+		this.dataCenter = dataCenter;
 	}
 
 }
