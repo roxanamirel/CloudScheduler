@@ -29,11 +29,11 @@ public abstract class Policy {
 
 	public abstract float computeQoSViolation(Resource r, Resource reference);
 
-	public float getWeigth() {
+	public float getWeight() {
 		return weight;
 	}
 
-	public void setWeigth(float weigth) {
+	public void setWeight(float weigth) {
 		this.weight = weigth;
 	}
 

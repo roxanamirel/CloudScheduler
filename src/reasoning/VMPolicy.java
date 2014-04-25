@@ -36,9 +36,9 @@ public class VMPolicy extends Policy {
 	 * */
 
 	@Override
-	public float computeQoSViolation(Resource r, Resource reference) {
-		VirtualMachine vm = (VirtualMachine) r;
-		Server server = (Server) reference;
+	public float computeQoSViolation(Resource virtualMachine, Resource serverReference) {
+		VirtualMachine vm = (VirtualMachine) virtualMachine;
+		Server server = (Server) serverReference;
 		double absRam = Math.abs(vm.getRAM().getCapacity()
 				- server.getRAM().getCapacity());
 		double absCPU = Math.abs(vm.getCPU().getTotalFrequency()
@@ -47,7 +47,6 @@ public class VMPolicy extends Policy {
 				- server.getHDD().getCapacity());
 		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)
 				+ Math.pow(absHDD, 2));
-
 	}
 
 	/**

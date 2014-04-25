@@ -26,11 +26,22 @@ public class Server extends ITComputingResource {
 	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST)
 	private List<VirtualMachine> runningVMs;
 
+	public Server(){}
+	
+	
+	public Server(CPU cPU, RAM rAM,HDD hDD) {
+		CPU = cPU;
+		RAM = rAM;
+		HDD = hDD;
+	}
+
+
 	@Override
 	public int getID() {
 		return this.ID;
 	}
 
+	
 	@Override
 	public void setID(int id) {
 	this.ID =id;

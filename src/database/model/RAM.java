@@ -13,18 +13,24 @@ public class RAM extends ITComputingResource{
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
-	private float Capacity;	
+	private float capacity;	
 	
 	
 	public RAM() {
 	}
 
+	
+	public RAM(float capacity) {
+		this.capacity = capacity;
+	}
+
+
 	public float getCapacity() {
-		return Capacity;
+		return capacity;
 	}
 
 	public void setCapacity(float capacity) {
-		Capacity = capacity;
+		this.capacity = capacity;
 	}
 
 	@Override

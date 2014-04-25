@@ -23,6 +23,12 @@ public class CPU extends ITComputingResource {
 	public CPU() {
 	}
 
+	
+	public CPU(List<CPUCore> cores) {
+		this.cores = cores;
+	}
+
+
 	@Override
 	public int getID() {
 		return this.ID;
@@ -33,13 +39,21 @@ public class CPU extends ITComputingResource {
 		this.ID = id;
 	}
 
-	public List<CPUCore> getCPU() {
+	/**
+	 * @return the cores
+	 */
+	public List<CPUCore> getCores() {
 		return cores;
 	}
 
-	public void setCPU(List<CPUCore> cPU) {
-		cores = cPU;
+
+	/**
+	 * @param cores the cores to set
+	 */
+	public void setCores(List<CPUCore> cores) {
+		this.cores = cores;
 	}
+
 
 	public float getTotalFrequency() {
 		Iterator<CPUCore> it = cores.iterator();

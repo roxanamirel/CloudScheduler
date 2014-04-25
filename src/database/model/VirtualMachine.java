@@ -11,25 +11,42 @@ import javax.persistence.Table;
 public class VirtualMachine extends ApplicationResource {
 	@Id
 	private int ID;
-	
+
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private CPU CPU;
-	
+
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private RAM RAM;
-	
+
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private DataCenter dataCenter;
-	
+
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private Server host;
-	
+
 	private HDD HDD;
-	
-	
 
 	public VirtualMachine() {
 	}
+
+	public VirtualMachine(database.model.CPU cPU, database.model.RAM rAM,
+			database.model.HDD hDD) {
+		CPU = cPU;
+		RAM = rAM;
+		HDD = hDD;
+	}
+
+	public VirtualMachine(int iD, database.model.CPU cPU,
+			database.model.RAM rAM, DataCenter dataCenter, Server host,
+			database.model.HDD hDD) {
+		ID = iD;
+		CPU = cPU;
+		RAM = rAM;
+		this.dataCenter = dataCenter;
+		this.host = host;
+		HDD = hDD;
+	}
+
 	@Override
 	public int getID() {
 		return this.ID;
@@ -39,6 +56,7 @@ public class VirtualMachine extends ApplicationResource {
 	public void setID(int id) {
 		this.ID = id;
 	}
+
 	/**
 	 * @return the cPU
 	 */
@@ -98,14 +116,17 @@ public class VirtualMachine extends ApplicationResource {
 	public void setHost(Server host) {
 		this.host = host;
 	}
+
 	/**
 	 * @return the dataCenter
 	 */
 	public DataCenter getDataCenter() {
 		return dataCenter;
 	}
+
 	/**
-	 * @param dataCenter the dataCenter to set
+	 * @param dataCenter
+	 *            the dataCenter to set
 	 */
 	public void setDataCenter(DataCenter dataCenter) {
 		this.dataCenter = dataCenter;

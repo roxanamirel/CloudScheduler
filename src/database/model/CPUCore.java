@@ -18,6 +18,15 @@ public class CPUCore extends ITComputingResource {
 
 	public CPUCore() {
 	}
+	
+	
+
+	public CPUCore(float frequency, float weight) {
+		this.frequency = frequency;
+		this.weight = weight;
+	}
+
+
 
 	@Override
 	public int getID() {

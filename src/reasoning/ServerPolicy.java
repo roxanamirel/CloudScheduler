@@ -20,7 +20,7 @@ public class ServerPolicy extends Policy {
 		this.cpuMin = Float.parseFloat(params.get(0));
 		this.cpuMax = Float.parseFloat(params.get(1));
 		this.ramMin = Float.parseFloat(params.get(2));
-		this.ramMin = Float.parseFloat(params.get(3));
+		this.ramMax = Float.parseFloat(params.get(3));
 	}
 
 	@Override
@@ -41,9 +41,9 @@ public class ServerPolicy extends Policy {
 	 * in the Euclidean space.
 	 * */
 	@Override
-	public float computeQoSViolation(Resource r, Resource reference) {
-		Server optimalLoad = (Server) reference;
-		Server server = (Server) r;
+	public float computeQoSViolation(Resource serverResource, Resource serverReference) {
+		Server server = (Server) serverResource;
+		Server optimalLoad = (Server) serverReference;
 		double absRam = Math.abs(optimalLoad.getRAM().getCapacity()
 				- server.getRAM().getCapacity());
 		double absCPU = Math.abs(optimalLoad.getCPU().getTotalFrequency()

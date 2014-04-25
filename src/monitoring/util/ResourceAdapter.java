@@ -63,9 +63,10 @@ public class ResourceAdapter {
 			CPUCore cpuCore = new CPUCore();
 			cpuCore.setFrequency(model.getCpu());
 			cores.add(cpuCore);
+			
 		}
 		CPU cpu = new CPU();
-		cpu.setCPU(cores);
+		cpu.setCores(cores);
 		return cpu;
 	}
 
