@@ -32,10 +32,8 @@ public class Analysis {
 	}
 
 	private DataCenter recreateModel() {
-
 		FacadeFactory facadeFactory = new FacadeFactory();
 		return facadeFactory.createDataCenterFacade().findAll().get(0);
-
 	}
 
 	/** */
@@ -48,7 +46,7 @@ public class Analysis {
 	/** */
 	private void decidePlanning(float entropy) {
 		if (entropy > THRESHOLD)
-			new ReinforcementLearning(dataCenter);
+			new ReinforcementLearning(dataCenter,entropy);
 	}
 
 	private List<Policy> getPolicyPool() {

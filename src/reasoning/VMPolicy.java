@@ -24,7 +24,7 @@ public class VMPolicy extends Policy {
 	@Override
 	public boolean evaluate(Resource r) {
 		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	/***
@@ -43,10 +43,10 @@ public class VMPolicy extends Policy {
 				- server.getRAM().getCapacity());
 		double absCPU = Math.abs(vm.getCPU().getTotalFrequency()
 				- server.getCPU().getTotalFrequency());
-		double absHDD = Math.abs(vm.getHDD().getCapacity()
-				- server.getHDD().getCapacity());
-		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)
-				+ Math.pow(absHDD, 2));
+//		double absHDD = Math.abs(vm.getHDD().getCapacity()
+//				- server.getHDD().getCapacity());
+		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2));
+				//+ Math.pow(absHDD, 2));
 	}
 
 	/**

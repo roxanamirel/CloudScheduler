@@ -56,7 +56,7 @@ public class ServerInitialization {
 		List<Server>servers = new ArrayList<Server>();
 		servers.add(host1);
 		servers.add(host2);
-		dataCenter.setServerPool(servers);
+		//dataCenter.setServerPool(servers);
 		
 		host1.setDataCenter(dataCenter);
 		host2.setDataCenter(dataCenter);

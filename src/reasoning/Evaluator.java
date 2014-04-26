@@ -51,7 +51,7 @@ public class Evaluator {
 	 * POLITICA); }
 	 */
 	public float computeEntropy(DataCenter dataCenter) {
-		policyManager.evaluatePolicies();
+		//policyManager.evaluatePolicies();
 
 		Server serverReference = createServerReferenceFromPolicy(dataCenter);
 

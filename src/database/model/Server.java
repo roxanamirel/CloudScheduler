@@ -1,5 +1,6 @@
 package database.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -24,7 +25,7 @@ public class Server extends ITComputingResource {
 	private DataCenter dataCenter;
 	
 	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST)
-	private List<VirtualMachine> runningVMs;
+	private List<VirtualMachine> runningVMs = new ArrayList<VirtualMachine>();
 
 	public Server(){}
 	
@@ -130,6 +131,22 @@ public class Server extends ITComputingResource {
 	 */
 	public void setDataCenter(DataCenter dataCenter) {
 		this.dataCenter = dataCenter;
+	}
+	
+	public float getAvailableCPUFrequency(){
+		float avaiableCPUFrequency = this.CPU.getTotalFrequency();
+		for(VirtualMachine vm : this.runningVMs){
+			avaiableCPUFrequency -= vm.getCPU().getTotalFrequency();
+		}
+		return avaiableCPUFrequency;
+	}
+	
+	public float getAvailableRAMCapacity() {
+		float avaiableRAMCapacity = this.RAM.getCapacity();
+		for(VirtualMachine vm : this.runningVMs){
+			avaiableRAMCapacity -= vm.getRAM().getCapacity();
+		}
+		return avaiableRAMCapacity;
 	}
 
 }

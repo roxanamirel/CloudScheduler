@@ -7,6 +7,7 @@ import monitoring.util.FacadeFactory;
 import monitoring.util.ResourceAdapter;
 import monitoring.util.ResourceFactory;
 import database.facade.VirtualMachineFacade;
+import database.model.DataCenter;
 import database.model.Resource;
 import database.model.VirtualMachine;
 
@@ -47,6 +48,9 @@ public class QueueProcessor extends Thread {
 		if (resource instanceof VirtualMachine) {
 			VirtualMachineFacade virtualMachineFacade = facadeFactory
 					.createVirtualMachineFacade();
+
+			DataCenter dataCenter = facadeFactory.createDataCenterFacade().findAll().get(0);
+			((VirtualMachine) resource).setDataCenter(dataCenter);
 			virtualMachineFacade.save((VirtualMachine) resource);
 		}
 		//

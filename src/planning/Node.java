@@ -2,21 +2,22 @@ package planning;
 
 import java.util.List;
 
+public class Node implements Comparable<Node> {
 
-public class Node implements Comparable<Node>{
-
-	private float entropy;	
-	private float reward;	
+	private float entropy;
+	private float reward;
 	private static final float GAMMA = 1;
+	private List<Action> actionSequence;
 	
-	private List<Action> actionSequence ;
-	
+
 	/** */
-	public int compareTo(Node obj)
-	{
-		//implement compare to based on REWARD
+	public int compareTo(Node obj) {
+		if (this.reward > obj.reward)
+			return 1;
+		else if (this.reward < obj.reward)
+			return -1;
 		return 0;
-	
+
 	}
 
 	public List<Action> getActionSequence() {
@@ -43,13 +44,9 @@ public class Node implements Comparable<Node>{
 		this.reward = reward;
 	}
 
-	public float computeReward(float reward2, float entropy2, float oldEntropy,
+	public float computeReward(float reward, float entropy, float oldEntropy,
 			float cost) {
-		// TODO Auto-generated method stub
-		float reward = 0;
-		reward = reward2 + GAMMA * (entropy2 - oldEntropy - cost);
-		return reward;
-		
-		
+		return reward + GAMMA * (entropy - oldEntropy - cost);
+
 	}
 }

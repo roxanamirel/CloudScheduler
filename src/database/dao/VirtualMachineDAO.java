@@ -26,8 +26,10 @@ public class VirtualMachineDAO  {
 	}
 
 	public VirtualMachine update(VirtualMachine entity) {
-		return em.merge(entity);
-		
+		em.getTransaction().begin();
+		VirtualMachine vm = em.merge(entity);
+		em.getTransaction().commit();
+		return vm;
 	}
 
 	public VirtualMachine find(int entityID) {

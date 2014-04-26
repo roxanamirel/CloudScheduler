@@ -4,34 +4,25 @@ import database.model.DataCenter;
 import database.model.Server;
 import database.model.VirtualMachine;
 
-public class Action
+public abstract class Action
 {
-	private Server SourceServerID;	
-	private Server DestinationServerID;	
-	private VirtualMachine VMID;	
+	private Server sourceServer;	
+	private Server destinationServer;	
+	private VirtualMachine vm;	
 	private float cost;
 	
 	public Action(Server sourceServerID, Server destinationServerID, VirtualMachine vMID) {
 		super();
-		SourceServerID = sourceServerID;
-		DestinationServerID = destinationServerID;
-		VMID = vMID;
+		sourceServer = sourceServerID;
+		destinationServer = destinationServerID;
+		vm = vMID;
 	}
 
 	/** */
-	public DataCenter Do(DataCenter dc)
-	{
-		//do action in data center
-		//example: move VM for source server to destination server
-		return dc;
-	}
+	public abstract DataCenter Do(DataCenter dc);
 	
 	/** */
-	public DataCenter Undo(DataCenter dc)
-	{
-		//undo action in data center
-		return dc;	
-	}
+	public abstract DataCenter Undo(DataCenter dc);
 
 	public float getCost() {
 		return cost;
@@ -44,42 +35,42 @@ public class Action
 	/**
 	 * @return the sourceServerID
 	 */
-	public Server getSourceServerID() {
-		return SourceServerID;
+	public Server getSourceServer() {
+		return sourceServer;
 	}
 
 	/**
-	 * @param sourceServerID the sourceServerID to set
+	 * @param sourceServer the sourceServerID to set
 	 */
-	public void setSourceServerID(Server sourceServerID) {
-		SourceServerID = sourceServerID;
+	public void setSourceServer(Server sourceServer) {
+		this.sourceServer = sourceServer;
 	}
 
 	/**
-	 * @return the destinationServerID
+	 * @return the destinationServer
 	 */
-	public Server getDestinationServerID() {
-		return DestinationServerID;
+	public Server getDestinationServer() {
+		return destinationServer;
 	}
 
 	/**
-	 * @param destinationServerID the destinationServerID to set
+	 * @param destinationServer the destinationServer to set
 	 */
-	public void setDestinationServerID(Server destinationServerID) {
-		DestinationServerID = destinationServerID;
+	public void setDestinationServer(Server destinationServer) {
+		this.destinationServer = destinationServer;
 	}
 
 	/**
-	 * @return the vMID
+	 * @return the vm
 	 */
-	public VirtualMachine getVMID() {
-		return VMID;
+	public VirtualMachine getVM() {
+		return vm;
 	}
 
 	/**
-	 * @param vMID the vMID to set
+	 * @param vm the vMID to set
 	 */
-	public void setVMID(VirtualMachine vMID) {
-		VMID = vMID;
+	public void setVM(VirtualMachine vm) {
+		this.vm = vm;
 	}
 }
