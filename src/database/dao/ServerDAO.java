@@ -28,7 +28,10 @@ public class ServerDAO {
 	}
 
 	public Server update(Server entity) {
-		return em.merge(entity);
+		em.getTransaction().begin();
+		Server updated =  em.merge(entity);
+		em.getTransaction().commit();
+		return updated;
 		
 	}
 

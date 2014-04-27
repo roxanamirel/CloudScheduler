@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -24,7 +25,7 @@ public class Server extends ITComputingResource {
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private DataCenter dataCenter;
 	
-	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST,fetch=FetchType.EAGER )
 	private List<VirtualMachine> runningVMs = new ArrayList<VirtualMachine>();
 
 	public Server(){}
@@ -148,5 +149,69 @@ public class Server extends ITComputingResource {
 		}
 		return avaiableRAMCapacity;
 	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((CPU == null) ? 0 : CPU.hashCode());
+		result = prime * result + ((HDD == null) ? 0 : HDD.hashCode());
+		result = prime * result + ID;
+		result = prime * result + ((RAM == null) ? 0 : RAM.hashCode());
+		result = prime * result
+				+ ((dataCenter == null) ? 0 : dataCenter.hashCode());
+		result = prime * result
+				+ ((runningVMs == null) ? 0 : runningVMs.hashCode());
+		return result;
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Server other = (Server) obj;
+		if (CPU == null) {
+			if (other.CPU != null)
+				return false;
+		} else if (!CPU.equals(other.CPU))
+			return false;
+		if (HDD == null) {
+			if (other.HDD != null)
+				return false;
+		} else if (!HDD.equals(other.HDD))
+			return false;
+		if (ID != other.ID)
+			return false;
+		if (RAM == null) {
+			if (other.RAM != null)
+				return false;
+		} else if (!RAM.equals(other.RAM))
+			return false;
+		if (dataCenter == null) {
+			if (other.dataCenter != null)
+				return false;
+		} else if (!dataCenter.equals(other.dataCenter))
+			return false;
+		if (runningVMs == null) {
+			if (other.runningVMs != null)
+				return false;
+		} else if (!runningVMs.equals(other.runningVMs))
+			return false;
+		return true;
+	}
+	
+	
 
 }

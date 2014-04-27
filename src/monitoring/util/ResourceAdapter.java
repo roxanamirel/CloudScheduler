@@ -2,9 +2,6 @@ package monitoring.util;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.eclipse.persistence.internal.jpa.parsing.jpql.antlr.JPQLParser.selectItem_return;
-
 import models.ServerModel;
 import models.VMModel;
 import services.ServerService;

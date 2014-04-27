@@ -4,14 +4,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
+import os.ServerOperations;
+
+import logger.CloudLogger;
+import models.ServerModel;
 import monitoring.util.FacadeFactory;
 
 import reasoning.Evaluator;
 import reasoning.PolicyInstance;
+import services.ServerService;
 import database.model.DataCenter;
 import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
+import enums.ServiceType;
+import exceptions.ServiceCenterAccessException;
+import factory.CloudManagerFactory;
 
 public class ReinforcementLearning {
 
@@ -50,8 +58,8 @@ public class ReinforcementLearning {
 			List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
 					.getViolatedPolicies();
 			// 3. undo actions on data center
-			dataCenter = simulation
-					.undoActions(currentNode.getActionSequence());
+						dataCenter = simulation
+								.undoActions(currentNode.getActionSequence());
 			Node nextNode = null;
 			// 4. iterate through policies
 			for (PolicyInstance policy : broken_GPI_KPI_Policies) {
@@ -61,7 +69,7 @@ public class ReinforcementLearning {
 					Server deploymentServer = findBestMatchingServer(
 							dataCenter, vm);
 					if (deploymentServer != null) {
-						nextNode = generateLeaf(currentNode, "DEPLOYT", null,
+						nextNode = generateLeaf(currentNode, "DEPLOY", null,
 								deploymentServer, vm);
 					} else {
 						// need to wake-up one server
@@ -93,7 +101,6 @@ public class ReinforcementLearning {
 				}
 				pQueue.add(nextNode);
 			}
-			
 		}
 		return reinforcementLearning(pQueue, highestRewardNode);
 	}
@@ -153,7 +160,15 @@ public class ReinforcementLearning {
 
 			break;
 		case "SHUTDOWN":
-
+			ServerService serverService = (ServerService) CloudManagerFactory.getService(ServiceType.SERVER);
+			ServerModel serverModel = null;
+			try {
+				serverModel = serverService.getById(src.getID());
+			} catch (ServiceCenterAccessException e) {
+				CloudLogger.getInstance().LogInfo(e.getMessage());
+				e.printStackTrace();
+			}
+			ServerOperations.shutDown(serverModel);
 			break;
 		}
 		// 1. compute data center for current node
@@ -194,7 +209,7 @@ public class ReinforcementLearning {
 					Action action  = new Deploy(null, deploymentServer,vm);
 					actionSequence.add(action);
 					root.setActionSequence(actionSequence);
-					root.computeReward(3, entropy, 0, 1);
+					root.setReward(root.computeReward(3, entropy, 0, 1));
 					break;
 				}
 			}

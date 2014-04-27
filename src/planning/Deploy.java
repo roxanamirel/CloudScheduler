@@ -1,19 +1,13 @@
 package planning;
 
+
+import initializations.PolicyPool;
+
 import java.util.List;
 
-import logger.CloudLogger;
-import models.ServerModel;
-import models.VMModel;
-import monitoring.util.FacadeFactory;
-import services.ServerService;
-import services.VMService;
 import database.model.DataCenter;
 import database.model.Server;
 import database.model.VirtualMachine;
-import enums.ServiceType;
-import exceptions.ServiceCenterAccessException;
-import factory.CloudManagerFactory;
 
 public class Deploy extends Action {
 
@@ -24,31 +18,35 @@ public class Deploy extends Action {
 
 	@Override
 	public DataCenter Do(DataCenter dc) {
-		VMService vmService = (VMService) CloudManagerFactory
-				.getService(ServiceType.VM);
-		ServerService serverService = (ServerService) CloudManagerFactory
-				.getService(ServiceType.SERVER);
-		try {
-			VirtualMachine vm = this.getVM();
-			VMModel vmModel = vmService.getById(vm.getID());
-			ServerModel serverModel = serverService.getById(this
-					.getDestinationServer().getID());
-			vmModel = vmService.deploy(vmModel, serverModel);
-			FacadeFactory facadeFactory = new FacadeFactory();
-			Server server = facadeFactory.createServerFacade().find(
-					serverModel.getId());
-			vm.setHost(server);
-			vm = facadeFactory.createVirtualMachineFacade().update(vm);
-			this.setVM(vm);
-		} catch (ServiceCenterAccessException e) {
-			CloudLogger.getInstance().LogInfo(e.getMessage());
-		}
+		VirtualMachine vm = this.getVM();
+		Server server = this.getFacadeFactory().createServerFacade().find(
+				this.getDestinationServer().getID());
+		vm.setHost(server);
+		vm = this.getFacadeFactory().createVirtualMachineFacade().update(vm);
+		this.setVM(vm);
+		List<VirtualMachine> vms = server.getRunningVMs();
+		vms.add(this.getVM());
+		server.setRunningVMs(vms);
+		server = this.getFacadeFactory().createServerFacade().update(server);
+		dc = this.getFacadeFactory().createDataCenterFacade().find(dc.getID());
+		dc.setPolicyPool(PolicyPool.getPolicyPool());
 		return dc;
 	}
 
 	@Override
 	public DataCenter Undo(DataCenter dc) {
-		// TODO Auto-generated method stub
-		return null;
+		VirtualMachine vm = this.getVM();
+		Server server = this.getFacadeFactory().createServerFacade().find(
+				this.getDestinationServer().getID());
+		vm.setHost(null);
+		vm = this.getFacadeFactory().createVirtualMachineFacade().update(vm);
+		this.setVM(vm);
+		List<VirtualMachine> vms = server.getRunningVMs();
+		vms.remove(this.getVM());
+		server.setRunningVMs(vms);
+		server = this.getFacadeFactory().createServerFacade().update(server);
+		dc = this.getFacadeFactory().createDataCenterFacade().find(dc.getID());
+		dc.setPolicyPool(PolicyPool.getPolicyPool());
+		return dc;
 	}
 }

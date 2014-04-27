@@ -1,5 +1,6 @@
 package planning;
 
+import monitoring.util.FacadeFactory;
 import database.model.DataCenter;
 import database.model.Server;
 import database.model.VirtualMachine;
@@ -10,12 +11,14 @@ public abstract class Action
 	private Server destinationServer;	
 	private VirtualMachine vm;	
 	private float cost;
+	private FacadeFactory facadeFactory;
 	
 	public Action(Server sourceServerID, Server destinationServerID, VirtualMachine vMID) {
 		super();
 		sourceServer = sourceServerID;
 		destinationServer = destinationServerID;
 		vm = vMID;
+		this.facadeFactory = new FacadeFactory();
 	}
 
 	/** */
@@ -73,4 +76,12 @@ public abstract class Action
 	public void setVM(VirtualMachine vm) {
 		this.vm = vm;
 	}
+
+	/**
+	 * @return the facadeFactory
+	 */
+	public FacadeFactory getFacadeFactory() {
+		return facadeFactory;
+	}
+	
 }

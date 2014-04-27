@@ -1,11 +1,11 @@
 package reasoning;
 
+import java.io.Serializable;
 import java.util.List;
-
 import database.model.Resource;
 
 /** */
-public abstract class Policy {
+public abstract class Policy implements Serializable {
 
 	private RuleName name;
 	/**
@@ -14,7 +14,7 @@ public abstract class Policy {
 	private float weight;
 
 	private List<String> params;
-
+	
 	/**
 	 * Parameters passed from Abstract factory
 	 * */
@@ -36,5 +36,34 @@ public abstract class Policy {
 	public void setWeight(float weigth) {
 		this.weight = weigth;
 	}
+
+	/**
+	 * @return the name
+	 */
+	public RuleName getName() {
+		return name;
+	}
+
+	/**
+	 * @param name the name to set
+	 */
+	public void setName(RuleName name) {
+		this.name = name;
+	}
+
+	/**
+	 * @return the params
+	 */
+	public List<String> getParams() {
+		return params;
+	}
+
+	/**
+	 * @param params the params to set
+	 */
+	public void setParams(List<String> params) {
+		this.params = params;
+	}
+
 
 }

@@ -17,14 +17,14 @@ public class VMPolicy extends Policy {
 	}
 
 	private void initializeState(List<String> params) {
-		this.state = params.get(0);
+		this.state = params.get(0);//is deployed
 
 	}
 
 	@Override
 	public boolean evaluate(Resource r) {
-		// TODO Auto-generated method stub
-		return true;
+		VirtualMachine vm = (VirtualMachine)r;
+		return vm.getHost() == null;
 	}
 
 	/***

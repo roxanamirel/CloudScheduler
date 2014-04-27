@@ -25,7 +25,7 @@ public class DataCenter
 	
 	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.PERSIST)
 	private List<VirtualMachine> VMPool;
-		
+	
 	private List<Policy> policyPool;
 	
 	public List<Resource> getAllResources()

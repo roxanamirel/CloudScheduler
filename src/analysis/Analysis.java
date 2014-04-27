@@ -1,19 +1,11 @@
 package analysis;
 
-import java.util.ArrayList;
-import java.util.List;
+import initializations.PolicyPool;
+
 
 import monitoring.util.FacadeFactory;
 import planning.ReinforcementLearning;
 import reasoning.Evaluator;
-import reasoning.Policy;
-import reasoning.PolicyFactory;
-import reasoning.RuleFileMapper;
-import reasoning.RuleFileMapperReader;
-import database.connection.DBConnection;
-import database.dao.DataCenterDAO;
-import database.facade.DataCenterFacade;
-import database.facade.DataCenterFacadeImpl;
 import database.model.DataCenter;
 
 /**
@@ -26,7 +18,7 @@ public class Analysis {
 
 	public void startAnalysis() {
 		dataCenter = recreateModel();
-		dataCenter.setPolicyPool(getPolicyPool());
+		dataCenter.setPolicyPool(PolicyPool.getPolicyPool());
 		float entropy = evaluateRules();
 		decidePlanning(entropy);
 	}
@@ -49,12 +41,5 @@ public class Analysis {
 			new ReinforcementLearning(dataCenter,entropy);
 	}
 
-	private List<Policy> getPolicyPool() {
-		List<RuleFileMapper> rules = RuleFileMapperReader.readFromFile();
-		List<Policy> policyPool = new ArrayList<Policy>();
-		for (RuleFileMapper rule : rules) {
-			policyPool.add(PolicyFactory.createPolicy(rule));
-		}
-		return policyPool;
-	}
+	
 }
