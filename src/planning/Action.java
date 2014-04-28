@@ -1,5 +1,6 @@
 package planning;
 
+import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import database.model.DataCenter;
 import database.model.Server;
@@ -13,12 +14,12 @@ public abstract class Action
 	private float cost;
 	private FacadeFactory facadeFactory;
 	
-	public Action(Server sourceServerID, Server destinationServerID, VirtualMachine vMID) {
-		super();
-		sourceServer = sourceServerID;
-		destinationServer = destinationServerID;
-		vm = vMID;
+	public Action(Server sourceServer, Server destinationServer, VirtualMachine vm) {
+		this.sourceServer = sourceServer;
+		this.destinationServer = destinationServer;
+		this.vm = vm;
 		this.facadeFactory = new FacadeFactory();
+		CloudLogger.getInstance().LogInfo("Simulating " + this.getClass().toString() + " action.");
 	}
 
 	/** */

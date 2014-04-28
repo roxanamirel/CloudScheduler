@@ -26,10 +26,18 @@ public class ServerPolicy extends Policy {
 	@Override
 	public boolean evaluate(Resource r) {
 		Server server = (Server) r;
-		return !(server.getCPU().getTotalFrequency() > this.cpuMin && 
-			   server.getCPU().getTotalFrequency() < this.cpuMax && 
-			   server.getRAM().getCapacity()       > this.ramMin && 
-			   server.getRAM().getCapacity()       < this.ramMax);
+		
+		float minCPU = this.cpuMin / 100 * server.getCPU().getTotalFrequency();
+		float maxCPU = this.cpuMax / 100 * server.getCPU().getTotalFrequency();
+		float minRAM = this.ramMin / 100 * server.getRAM().getCapacity();
+		float maxRAM = this.ramMax / 100 * server.getRAM().getCapacity();
+		
+		float availableCPUFrequency = server.getAvailableCPUFrequency();
+		float availableRAMCapacity = server.getAvailableRAMCapacity();
+		return !(availableCPUFrequency > minCPU && 
+				availableCPUFrequency  < maxCPU && 
+				availableRAMCapacity   > minRAM && 
+				availableRAMCapacity   < maxRAM);
 
 	}
 

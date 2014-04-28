@@ -3,13 +3,10 @@ package planning;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
-
 import os.ServerOperations;
-
 import logger.CloudLogger;
 import models.ServerModel;
 import monitoring.util.FacadeFactory;
-
 import reasoning.Evaluator;
 import reasoning.PolicyInstance;
 import services.ServerService;
@@ -50,14 +47,14 @@ public class ReinforcementLearning {
 			// actual algorithm
 			// 1. compute data center for current node
 			SimulateAction simulation = new SimulateAction(dataCenter);
-			dataCenter = simulation.executeActions(currentNode
+			dataCenter = simulation.doActions(currentNode
 					.getActionSequence());
 			
 			// 2. get broken policies of the current node
 			Evaluator evaluator = new Evaluator(dataCenter);
 			List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
 					.getViolatedPolicies();
-			// 3. undo actions on data center
+//			 3. undo actions on data center
 						dataCenter = simulation
 								.undoActions(currentNode.getActionSequence());
 			Node nextNode = null;
@@ -154,21 +151,22 @@ public class ReinforcementLearning {
 			action = new Deploy(src, dest, vm);
 			break;
 		case "MIGRATE":
-
+			action = new Migrate(src, dest, vm);
 			break;
 		case "WAKEUP":
 
 			break;
 		case "SHUTDOWN":
-			ServerService serverService = (ServerService) CloudManagerFactory.getService(ServiceType.SERVER);
-			ServerModel serverModel = null;
-			try {
-				serverModel = serverService.getById(src.getID());
-			} catch (ServiceCenterAccessException e) {
-				CloudLogger.getInstance().LogInfo(e.getMessage());
-				e.printStackTrace();
-			}
-			ServerOperations.shutDown(serverModel);
+			action = new TurnOffServer(src, dest, vm);
+//			ServerService serverService = (ServerService) CloudManagerFactory.getService(ServiceType.SERVER);
+//			ServerModel serverModel = null;
+//			try {
+//				serverModel = serverService.getById(src.getID());
+//			} catch (ServiceCenterAccessException e) {
+//				CloudLogger.getInstance().LogInfo(e.getMessage());
+//				e.printStackTrace();
+//			}
+//			ServerOperations.shutDown(serverModel);
 			break;
 		}
 		// 1. compute data center for current node
@@ -176,7 +174,7 @@ public class ReinforcementLearning {
 		List<Action> actions = currentNode.getActionSequence();
 		// CHECK TO BE ADDED AT THE END
 		actions.add(action);
-		dataCenter = simulation.executeActions(actions);
+		dataCenter = simulation.doActions(actions);
 		// 2. get broken policies of the current node
 		Evaluator evaluator = new Evaluator(dataCenter);
 		entropy = evaluator.computeEntropy(dataCenter);

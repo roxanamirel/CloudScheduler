@@ -56,13 +56,14 @@ public class ResourceAdapter {
 
 	private static CPU constructCPU(VMModel model) {
 		List<CPUCore> cores = new ArrayList<CPUCore>();
+		CPU cpu = new CPU();
 		for (int core = 0; core < model.getCores(); core++) {
 			CPUCore cpuCore = new CPUCore();
 			cpuCore.setFrequency(model.getCpu());
-			cores.add(cpuCore);
-			
-		}
-		CPU cpu = new CPU();
+			cpuCore.setCpu(cpu);
+			cpuCore.setWeight(1);
+			cores.add(cpuCore);			
+		}		
 		cpu.setCores(cores);
 		return cpu;
 	}
