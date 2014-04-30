@@ -27,7 +27,10 @@ public class DataCenterDAO {
 	}
 
 	public DataCenter update(DataCenter entity) {
-		return em.merge(entity);
+		em.getTransaction().begin();
+		DataCenter dataCenter =  em.merge(entity);
+		em.getTransaction().commit();
+		return dataCenter;
 		
 	}
 

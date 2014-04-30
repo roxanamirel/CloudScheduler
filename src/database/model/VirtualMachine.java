@@ -12,16 +12,16 @@ public class VirtualMachine extends ApplicationResource {
 	@Id
 	private int ID;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.ALL)
 	private CPU CPU;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.ALL)
 	private RAM RAM;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne
 	private DataCenter dataCenter;
 
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne
 	private Server host;
 
 	private HDD HDD;

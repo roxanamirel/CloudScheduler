@@ -1,8 +1,10 @@
 package monitoring;
 
+import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import analysis.Analysis;
+import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import monitoring.util.ResourceAdapter;
 import monitoring.util.ResourceFactory;
@@ -25,13 +27,15 @@ public class QueueProcessor extends Thread {
 	@Override
 	public void run() {
 		while (true) {
+			CloudLogger.getInstance().LogInfo("Waiting for VM's");
 			while (!incoming.isEmpty()) {
 				Message message = incoming.pollFirst();
+				CloudLogger.getInstance().LogInfo("Processing virtual machine with id: " + message.getId());
 				writeMessageToDB(message);
 				changes = true;
 			}
 			if (changes) {
-				this.analysis.startAnalysis();
+//				this.analysis.startAnalysis();
 				changes = false;
 			}
 		}
@@ -44,14 +48,16 @@ public class QueueProcessor extends Thread {
 		resource.setID(Integer.parseInt(message.getId()));
 
 		ResourceAdapter.updateResource(resource);
+		
 
 		if (resource instanceof VirtualMachine) {
-			VirtualMachineFacade virtualMachineFacade = facadeFactory
-					.createVirtualMachineFacade();
-
 			DataCenter dataCenter = facadeFactory.createDataCenterFacade().findAll().get(0);
-			((VirtualMachine) resource).setDataCenter(dataCenter);
-			virtualMachineFacade.save((VirtualMachine) resource);
+			VirtualMachine vm = (VirtualMachine) resource; 
+			vm.setDataCenter(dataCenter);
+			facadeFactory.createVirtualMachineFacade().save(vm);
+			DataCenter dataCenter2 = facadeFactory.createDataCenterFacade().findAll().get(0);
+			int x = 5;
+			int y = x + 4;
 		}
 		//
 		// if(resource instanceof Server){

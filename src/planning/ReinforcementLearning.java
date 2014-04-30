@@ -10,12 +10,14 @@ import monitoring.util.FacadeFactory;
 import reasoning.Evaluator;
 import reasoning.PolicyInstance;
 import services.ServerService;
+import util.ServerState;
 import database.model.DataCenter;
 import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
 import enums.ServiceType;
 import exceptions.ServiceCenterAccessException;
+import execution.Execution;
 import factory.CloudManagerFactory;
 
 public class ReinforcementLearning {
@@ -27,7 +29,19 @@ public class ReinforcementLearning {
 	public ReinforcementLearning(DataCenter dataCenter, float entropy) {
 		this.dataCenter = dataCenter;
 		this.pQueue = constructPriorityQueue(entropy);
-		this.reinforcementLearning(pQueue, null);
+		List<Action> finalActions = this.reinforcementLearning(pQueue, null);
+		executeFinalActions(finalActions);
+	}
+
+	private void executeFinalActions(List<Action> finalActions) {
+		for (Action action : finalActions) {
+			CloudLogger.getInstance().LogInfo(
+					action.toString() + " will be executed ...");
+		}
+
+		Execution execution = new Execution();
+		execution.updateDatabase(dataCenter, finalActions);
+		execution.executeActions(finalActions);
 	}
 
 	/** */
@@ -37,26 +51,25 @@ public class ReinforcementLearning {
 		if (currentNode == null) {
 			return highestRewardNode.getActionSequence();
 		}
-		if (currentNode.getEntropy() < THRESHOLD_ENTROPY) {
+		if (currentNode.getEntropy() <= THRESHOLD_ENTROPY) {
 			return currentNode.getActionSequence();
 		}
 		if ((highestRewardNode == null)
-				|| (currentNode.getReward() > highestRewardNode.getReward())) {
+				|| (currentNode.getReward() < highestRewardNode.getReward())) {
 			highestRewardNode = currentNode;
-		//} else {
+			// } else {
 			// actual algorithm
 			// 1. compute data center for current node
 			SimulateAction simulation = new SimulateAction(dataCenter);
-			dataCenter = simulation.doActions(currentNode
-					.getActionSequence());
-			
+			dataCenter = simulation.doActions(currentNode.getActionSequence());
+
 			// 2. get broken policies of the current node
 			Evaluator evaluator = new Evaluator(dataCenter);
 			List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
 					.getViolatedPolicies();
-//			 3. undo actions on data center
-						dataCenter = simulation
-								.undoActions(currentNode.getActionSequence());
+			// 3. undo actions on data center
+			dataCenter = simulation
+					.undoActions(currentNode.getActionSequence());
 			Node nextNode = null;
 			// 4. iterate through policies
 			for (PolicyInstance policy : broken_GPI_KPI_Policies) {
@@ -108,9 +121,9 @@ public class ReinforcementLearning {
 	}
 
 	/**
-	 * iterate through all servers from the data center
-	 * find server that is best filled by the VM in a greedy manner
-	 * BEST FIT
+	 * iterate through all servers from the data center find server that is best
+	 * filled by the VM in a greedy manner BEST FIT
+	 * 
 	 * @param dataCenter
 	 * @param vm
 	 * @return server that is best filled by the VM
@@ -120,20 +133,24 @@ public class ReinforcementLearning {
 		// TODO instead of findAll(), eventual findByDataCenter
 		FacadeFactory factory = new FacadeFactory();
 		List<Server> allServers = factory.createServerFacade().findAll();
-		
+
 		float bestRemainingRAMCapacity = Float.MAX_VALUE;
 		float bestRemainingCPUFrequency = Float.MAX_VALUE;
 		Server bestServer = null;
-		
-		for(Server server: allServers){
-			float availableRAMCapacity = server.getAvailableRAMCapacity() - vm.getRAM().getCapacity();
-			float availableCPUFrequency = server.getAvailableCPUFrequency() - vm.getCPU().getTotalFrequency();
-			if (availableRAMCapacity  < bestRemainingRAMCapacity &&
-					availableCPUFrequency < bestRemainingCPUFrequency) {
-				bestRemainingRAMCapacity = availableRAMCapacity;
-				bestRemainingCPUFrequency = availableCPUFrequency;
-				bestServer = server;
-			}				
+
+		for (Server server : allServers) {
+			if (server.getState().equals(ServerState.ON.toString())) {
+				float availableRAMCapacity = server.getAvailableRAMCapacity()
+						- vm.getRAM().getCapacity();
+				float availableCPUFrequency = server.getAvailableCPUFrequency()
+						- vm.getCPU().getTotalFrequency();
+				if (availableRAMCapacity < bestRemainingRAMCapacity
+						&& availableCPUFrequency < bestRemainingCPUFrequency) {
+					bestRemainingRAMCapacity = availableRAMCapacity;
+					bestRemainingCPUFrequency = availableCPUFrequency;
+					bestServer = server;
+				}
+			}
 		}
 		return bestServer;
 	}
@@ -158,15 +175,16 @@ public class ReinforcementLearning {
 			break;
 		case "SHUTDOWN":
 			action = new TurnOffServer(src, dest, vm);
-//			ServerService serverService = (ServerService) CloudManagerFactory.getService(ServiceType.SERVER);
-//			ServerModel serverModel = null;
-//			try {
-//				serverModel = serverService.getById(src.getID());
-//			} catch (ServiceCenterAccessException e) {
-//				CloudLogger.getInstance().LogInfo(e.getMessage());
-//				e.printStackTrace();
-//			}
-//			ServerOperations.shutDown(serverModel);
+			// ServerService serverService = (ServerService)
+			// CloudManagerFactory.getService(ServiceType.SERVER);
+			// ServerModel serverModel = null;
+			// try {
+			// serverModel = serverService.getById(src.getID());
+			// } catch (ServiceCenterAccessException e) {
+			// CloudLogger.getInstance().LogInfo(e.getMessage());
+			// e.printStackTrace();
+			// }
+			// ServerOperations.shutDown(serverModel);
 			break;
 		}
 		// 1. compute data center for current node
@@ -195,16 +213,17 @@ public class ReinforcementLearning {
 	private PriorityQueue<Node> constructPriorityQueue(float entropy) {
 		Node root = new Node();
 		root.setEntropy(entropy);
-		 Evaluator evaluator = new Evaluator(dataCenter);
-		 List<PolicyInstance> broken_GPI_KPI_Policies = evaluator.getViolatedPolicies();
-		 List<Action> actionSequence = new ArrayList<Action>();
-		 for(PolicyInstance policy: broken_GPI_KPI_Policies){
+		Evaluator evaluator = new Evaluator(dataCenter);
+		List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
+				.getViolatedPolicies();
+		List<Action> actionSequence = new ArrayList<Action>();
+		for (PolicyInstance policy : broken_GPI_KPI_Policies) {
 			Resource subject = policy.getResource();
-			if(subject instanceof VirtualMachine){
-				VirtualMachine vm = (VirtualMachine)subject;
+			if (subject instanceof VirtualMachine) {
+				VirtualMachine vm = (VirtualMachine) subject;
 				Server deploymentServer = findBestMatchingServer(dataCenter, vm);
-				if(deploymentServer!=null){
-					Action action  = new Deploy(null, deploymentServer,vm);
+				if (deploymentServer != null) {
+					Action action = new Deploy(null, deploymentServer, vm);
 					actionSequence.add(action);
 					root.setActionSequence(actionSequence);
 					root.setReward(root.computeReward(3, entropy, 0, 1));
@@ -212,9 +231,9 @@ public class ReinforcementLearning {
 				}
 			}
 		}
-		
-		 PriorityQueue<Node> queue = new PriorityQueue<Node>();
-		 queue.add(root);
+
+		PriorityQueue<Node> queue = new PriorityQueue<Node>();
+		queue.add(root);
 		return queue;
 	}
 }

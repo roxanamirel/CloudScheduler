@@ -19,8 +19,7 @@ public class SimulateAction{
 	 * @return copy of data center, altered by the simulation of these actions
 	 */
 	public DataCenter doActions( List<Action> act)
-	{
-		
+	{		
 		Iterator<Action> it = act.iterator();
 		while(it.hasNext())
 		{

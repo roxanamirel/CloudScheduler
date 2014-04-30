@@ -20,10 +20,10 @@ public class DataCenter
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
 	
-	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.ALL)
 	private List<Server> serverPool;
 	
-	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.ALL)
 	private List<VirtualMachine> VMPool;
 	
 	private List<Policy> policyPool;

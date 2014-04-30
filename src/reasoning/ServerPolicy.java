@@ -1,6 +1,8 @@
 package reasoning;
 
 import java.util.List;
+
+import util.ServerState;
 import database.model.Resource;
 import database.model.Server;
 
@@ -26,7 +28,7 @@ public class ServerPolicy extends Policy {
 	@Override
 	public boolean evaluate(Resource r) {
 		Server server = (Server) r;
-		
+		if(server.getState().equals(ServerState.OFF.toString())) return false;
 		float minCPU = this.cpuMin / 100 * server.getCPU().getTotalFrequency();
 		float maxCPU = this.cpuMax / 100 * server.getCPU().getTotalFrequency();
 		float minRAM = this.ramMin / 100 * server.getRAM().getCapacity();

@@ -52,11 +52,9 @@ public class ServerInitialization {
 		host2.setRAM(ramm);
 		FacadeFactory facadeFactory = new FacadeFactory();
 		ServerFacade serverFacade = facadeFactory.createServerFacade();
-		DataCenter dataCenter = new DataCenter();	
-		List<Server>servers = new ArrayList<Server>();
-		servers.add(host1);
-		servers.add(host2);
-		//dataCenter.setServerPool(servers);
+		DataCenter dataCenter = new DataCenter();
+		dataCenter.setID(1);
+		facadeFactory.createDataCenterFacade().save(dataCenter);
 		
 		host1.setDataCenter(dataCenter);
 		host2.setDataCenter(dataCenter);

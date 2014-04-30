@@ -13,43 +13,45 @@ public class Migrate extends Action
 	}
 
 	@Override
-	public DataCenter Do(DataCenter dc) {		
-		updateVirtualMachine();		
-		updateServers();		
+	public DataCenter Do(DataCenter dc) {
+		Server destServer = this.getFacadeFactory().createServerFacade().find(
+				this.getDestinationServer().getID());
+		Server sourceServer = this.getFacadeFactory().createServerFacade().find(
+				this.getSourceServer().getID());
+		updateVirtualMachine(destServer);	
+		updateDestinationServer(destServer);
+		updateSourceServer(sourceServer);		
 		return updateDataCenter(dc);	
 	}
 
 	@Override
 	public DataCenter Undo(DataCenter dc) {
-		return null;
+		Server destServer = this.getFacadeFactory().createServerFacade().find(
+				this.getDestinationServer().getID());
+		Server sourceServer = this.getFacadeFactory().createServerFacade().find(
+				this.getSourceServer().getID());
+		updateVirtualMachine(sourceServer);	
+		updateVirtualMachine(sourceServer);	
+		updateSourceServer(destServer);
+		updateDestinationServer(sourceServer);		
+		return updateDataCenter(dc);	
 	}
 	
-	private void updateVirtualMachine() {
-		Server server = this.getFacadeFactory().createServerFacade().find(
-				this.getDestinationServer().getID());
+	private void updateVirtualMachine(Server server) {
 		VirtualMachine vm = this.getVM();
 		vm.setHost(server);
 		vm = this.getFacadeFactory().createVirtualMachineFacade().update(vm);
 		this.setVM(vm);		
-	}
+	}	
 	
-	private void updateServers() {
-		updateDestinationServer();
-		updateSourceServer();
-	}
-	
-	private void updateDestinationServer() {
-		Server server = this.getFacadeFactory().createServerFacade().find(
-				this.getDestinationServer().getID());
+	private void updateDestinationServer(Server server) {
 		List<VirtualMachine> vms = server.getRunningVMs();
 		vms.add(this.getVM());
 		server.setRunningVMs(vms);
 		server = this.getFacadeFactory().createServerFacade().update(server);		
 	}
 	
-	private void updateSourceServer() {
-		Server server = this.getFacadeFactory().createServerFacade().find(
-				this.getSourceServer().getID());
+	private void updateSourceServer(Server server) {
 		List<VirtualMachine> vms = server.getRunningVMs();
 		vms.remove(this.getVM());
 		server.setRunningVMs(vms);

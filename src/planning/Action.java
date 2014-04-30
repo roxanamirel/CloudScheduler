@@ -6,26 +6,36 @@ import database.model.DataCenter;
 import database.model.Server;
 import database.model.VirtualMachine;
 
-public abstract class Action
-{
-	private Server sourceServer;	
-	private Server destinationServer;	
-	private VirtualMachine vm;	
+public abstract class Action {
+	private Server sourceServer;
+	private Server destinationServer;
+	private VirtualMachine vm;
 	private float cost;
 	private FacadeFactory facadeFactory;
-	
-	public Action(Server sourceServer, Server destinationServer, VirtualMachine vm) {
+
+	public Action(Server sourceServer, Server destinationServer,
+			VirtualMachine vm) {
 		this.sourceServer = sourceServer;
 		this.destinationServer = destinationServer;
 		this.vm = vm;
 		this.facadeFactory = new FacadeFactory();
-		CloudLogger.getInstance().LogInfo("Simulating " + this.getClass().toString() + " action.");
+		CloudLogger.getInstance().LogInfo("Simulating " + this);
 	}
 
-	/** */
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "[sourceServer="
+				+ sourceServer + ", destinationServer=" + destinationServer
+				+ ", vm=" + vm + "]";
+	}
+
 	public abstract DataCenter Do(DataCenter dc);
-	
-	/** */
+
 	public abstract DataCenter Undo(DataCenter dc);
 
 	public float getCost() {
@@ -44,7 +54,8 @@ public abstract class Action
 	}
 
 	/**
-	 * @param sourceServer the sourceServerID to set
+	 * @param sourceServer
+	 *            the sourceServerID to set
 	 */
 	public void setSourceServer(Server sourceServer) {
 		this.sourceServer = sourceServer;
@@ -58,7 +69,8 @@ public abstract class Action
 	}
 
 	/**
-	 * @param destinationServer the destinationServer to set
+	 * @param destinationServer
+	 *            the destinationServer to set
 	 */
 	public void setDestinationServer(Server destinationServer) {
 		this.destinationServer = destinationServer;
@@ -72,7 +84,8 @@ public abstract class Action
 	}
 
 	/**
-	 * @param vm the vMID to set
+	 * @param vm
+	 *            the vMID to set
 	 */
 	public void setVM(VirtualMachine vm) {
 		this.vm = vm;
@@ -84,5 +97,5 @@ public abstract class Action
 	public FacadeFactory getFacadeFactory() {
 		return facadeFactory;
 	}
-	
+
 }
