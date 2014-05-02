@@ -55,7 +55,8 @@ public class ServerInitialization {
 		DataCenter dataCenter = new DataCenter();
 		dataCenter.setID(1);
 		facadeFactory.createDataCenterFacade().save(dataCenter);
-		
+		host1.setState("ON");
+		host2.setState("ON");
 		host1.setDataCenter(dataCenter);
 		host2.setDataCenter(dataCenter);
 		serverFacade.save(host1);

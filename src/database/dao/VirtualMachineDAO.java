@@ -33,14 +33,20 @@ public class VirtualMachineDAO  {
 	}
 
 	public VirtualMachine find(int entityID) {
-		return em.find(VirtualMachine.class, entityID);
+		em.getTransaction().begin();
+		VirtualMachine vm = em.find(VirtualMachine.class, entityID);
+		em.getTransaction().commit();
+		return vm;
 		
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<VirtualMachine> findAll() {
+		em.getTransaction().begin();
 		CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
 		cq.select(cq.from(VirtualMachine.class));
-		return em.createQuery(cq).getResultList();
+		List<VirtualMachine> vms = em.createQuery(cq).getResultList();
+		em.getTransaction().commit();
+		return vms;
 	}
 }

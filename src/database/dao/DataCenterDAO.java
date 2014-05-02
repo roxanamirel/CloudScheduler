@@ -35,14 +35,20 @@ public class DataCenterDAO {
 	}
 
 	public DataCenter find(int entityID) {
-		return em.find(DataCenter.class, entityID);
+		em.getTransaction().begin();
+		DataCenter datacenter =  em.find(DataCenter.class, entityID);
+		em.getTransaction().commit();
+		return datacenter;
 		
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<DataCenter> findAll() {
+		em.getTransaction().begin();
 		CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
 		cq.select(cq.from(DataCenter.class));
-		return em.createQuery(cq).getResultList();
+		List<DataCenter> list = em.createQuery(cq).getResultList();
+		em.getTransaction().commit();
+		return list;
 	}
 }

@@ -18,10 +18,10 @@ public class VirtualMachine extends ApplicationResource {
 	@OneToOne(cascade = CascadeType.ALL)
 	private RAM RAM;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private DataCenter dataCenter;
 
-	@OneToOne
+	@OneToOne(cascade = CascadeType.PERSIST)
 	private Server host;
 
 	private HDD HDD;

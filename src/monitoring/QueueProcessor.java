@@ -35,7 +35,7 @@ public class QueueProcessor extends Thread {
 				changes = true;
 			}
 			if (changes) {
-//				this.analysis.startAnalysis();
+				this.analysis.startAnalysis();
 				changes = false;
 			}
 		}
@@ -55,9 +55,9 @@ public class QueueProcessor extends Thread {
 			VirtualMachine vm = (VirtualMachine) resource; 
 			vm.setDataCenter(dataCenter);
 			facadeFactory.createVirtualMachineFacade().save(vm);
-			DataCenter dataCenter2 = facadeFactory.createDataCenterFacade().findAll().get(0);
-			int x = 5;
-			int y = x + 4;
+			dataCenter.getVMPool().add(vm);
+			dataCenter = facadeFactory.createDataCenterFacade().update(dataCenter);
+		    int b = 8;
 		}
 		//
 		// if(resource instanceof Server){
