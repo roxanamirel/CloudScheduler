@@ -40,7 +40,8 @@ public class Evaluator {
 	 * AICI MAI TREBUIE VAZUT EXACT CUM SE CALCULEAZA!!!
 	 * 
 	 * foreach violated policyInstance { if policyInstance.policy instanceOf
-	 * VMPolicy entropy += policyInstance.policy.score *
+	 * VMPolicy 
+	 * entropy += policyInstance.policy.score *
 	 * policyInstance.policy.computeQoSViolation(VM, Server_CU_VALORILE_0); //in
 	 * cazul acesta masina virtuala nu e asignata la niciun server, deci
 	 * //ponderea e foarte mare

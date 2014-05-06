@@ -7,23 +7,19 @@ import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
 
-/**
- * @author oneadmin
- * 
- */
 public class PolicyManager {
 
 	private List<PolicyInstance> resourcePolicies;
-	
+
 	public PolicyManager() {
 		this.resourcePolicies = new ArrayList<PolicyInstance>();
 	}
 
 	/**
-	 * se itereaza resurse: res
-	 * se itereaza policiti: pol
-	 * daca sunt compatibile => add new PolicyResource(res, pol)
-	 * compatibilitate dupa clase => instanceof
+	 * se itereaza resurse: res se itereaza policiti: pol daca sunt compatibile
+	 * => add new PolicyResource(res, pol) compatibilitate dupa clase =>
+	 * instanceof
+	 * 
 	 * @param resources
 	 *            = list of resources
 	 * @param policies
@@ -37,7 +33,8 @@ public class PolicyManager {
 			for (Policy policy : policies) {
 				if ((resource instanceof VirtualMachine && policy instanceof VMPolicy)
 						|| (resource instanceof Server && policy instanceof ServerPolicy)) {
-					PolicyInstance policyInstance = new PolicyInstance(resource, policy);
+					PolicyInstance policyInstance = new PolicyInstance(
+							resource, policy);
 					resourcePolicies.add(policyInstance);
 				}
 			}

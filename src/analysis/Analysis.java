@@ -2,7 +2,6 @@ package analysis;
 
 import initializations.PolicyPool;
 
-
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import planning.ReinforcementLearning;
@@ -33,16 +32,15 @@ public class Analysis {
 	private float evaluateRules() {
 		Evaluator evaluator = new Evaluator(dataCenter);
 		return evaluator.computeEntropy(dataCenter);
-
 	}
 
 	/** */
 	private void decidePlanning(float entropy) {
 		if (entropy > THRESHOLD) {
-			CloudLogger.getInstance().LogInfo("Starting Reinforcement Learning...");
-			new ReinforcementLearning(dataCenter,entropy);
+			CloudLogger.getInstance().LogInfo(
+					"Starting Reinforcement Learning...");
+			new ReinforcementLearning(dataCenter, entropy);
 		}
 	}
 
-	
 }

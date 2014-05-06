@@ -21,6 +21,12 @@ public abstract class Action {
 		this.facadeFactory = new FacadeFactory();
 		CloudLogger.getInstance().LogInfo("Simulating " + this);
 	}
+	
+	public Action(Server sourceServer, Server destinationServer,
+			VirtualMachine vm, float cost) {
+		this(sourceServer, destinationServer, vm);
+		this.cost = cost;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -29,8 +35,9 @@ public abstract class Action {
 	 */
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName() + "[sourceServer="
-				+ sourceServer + ", destinationServer=" + destinationServer
+		return this.getClass().getSimpleName() 
+				+ "[sourceServer="	+ sourceServer 
+				+ ", destinationServer=" + destinationServer
 				+ ", vm=" + vm + "]";
 	}
 

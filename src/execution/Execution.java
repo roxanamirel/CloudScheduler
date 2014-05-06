@@ -16,13 +16,11 @@ import factory.CloudManagerFactory;
 import planning.Action;
 import planning.Deploy;
 import planning.Migrate;
-import planning.SimulateAction;
 import planning.TurnOffServer;
 import planning.TurnOnServer;
 import services.ServerService;
 import services.VMService;
 
-;
 
 public class Execution {
 	private ServerService serverService;
@@ -40,6 +38,25 @@ public class Execution {
 
 	public DataCenter updateDatabase(DataCenter dataCenter,
 			List<Action> finalActions) {
+		
+		for(Action action : finalActions) {
+			
+			if (action instanceof Deploy) {
+				action.getFacadeFactory().createVirtualMachineFacade().update(action.getVM());
+				action.getFacadeFactory().createServerFacade().update(action.getDestinationServer());
+			}
+			if (action instanceof Migrate) {
+				action.getFacadeFactory().createVirtualMachineFacade().update(action.getVM());
+				action.getFacadeFactory().createServerFacade().update(action.getDestinationServer());
+				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+			}
+			if (action instanceof TurnOffServer) {
+				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+			}
+			if (action instanceof TurnOnServer) {
+				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+			}
+		}		
 		
 		return dataCenter;
 	}

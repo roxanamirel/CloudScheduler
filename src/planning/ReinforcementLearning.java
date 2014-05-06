@@ -1,24 +1,19 @@
 package planning;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.PriorityQueue;
-import os.ServerOperations;
+
 import logger.CloudLogger;
-import models.ServerModel;
-import monitoring.util.FacadeFactory;
 import reasoning.Evaluator;
 import reasoning.PolicyInstance;
-import services.ServerService;
 import util.ServerState;
 import database.model.DataCenter;
 import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
-import enums.ServiceType;
-import exceptions.ServiceCenterAccessException;
 import execution.Execution;
-import factory.CloudManagerFactory;
 
 public class ReinforcementLearning {
 
@@ -33,19 +28,57 @@ public class ReinforcementLearning {
 		executeFinalActions(finalActions);
 	}
 
-	private void executeFinalActions(List<Action> finalActions) {
-		for (Action action : finalActions) {
-			CloudLogger.getInstance().LogInfo(
-					action.toString() + " will be executed ...");
+	private PriorityQueue<Node> constructPriorityQueue(float oldEntropy) {
+		Node root = new Node();
+		// root.setEntropy(oldEntropy);
+		Evaluator evaluator = new Evaluator(dataCenter);
+		List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
+				.getViolatedPolicies();
+		List<Action> actionSequence = new ArrayList<Action>();
+		for (PolicyInstance policy : broken_GPI_KPI_Policies) {
+			Resource subject = policy.getResource();
+			if (subject instanceof VirtualMachine) {
+				VirtualMachine vm = (VirtualMachine) subject;
+				Server deploymentServer = findBestMatchingServer(dataCenter, vm);
+				if (deploymentServer != null) {
+
+					Action action = new Deploy(null, deploymentServer, vm);
+
+					// /////
+					actionSequence.add(action);
+					SimulateAction simulation = new SimulateAction(dataCenter);
+					dataCenter = simulation.doActions(actionSequence);
+					// 2. get broken policies of the current node
+					float entropy = evaluator.computeEntropy(dataCenter);
+					// 3. undo actions on data center
+					dataCenter = simulation.undoActions(actionSequence);
+
+					// //////
+					// actionSequence.add(action);
+					root.setEntropy(entropy);
+					root.setActionSequence(actionSequence);
+					root.setReward(root.computeReward(0, root.getEntropy(),
+							oldEntropy, action.getCost()));
+					break;
+				}
+			}
 		}
 
-		Execution execution = new Execution();
-		execution.updateDatabase(dataCenter, finalActions);
-		execution.executeActions(finalActions);
+		PriorityQueue<Node> queue = new PriorityQueue<Node>();
+		queue.add(root);
+		return queue;
 	}
 
-	/** */
-	public List<Action> reinforcementLearning(PriorityQueue<Node> pQueue,
+	/**
+	 * Returns the actions to be executed after applying the algorithm
+	 * 
+	 * @param pQueue
+	 *            = priority queue storing the nodes
+	 * @param highestRewardNode
+	 *            = node with the best reward
+	 * @return list of actions after applying the algorithm
+	 */
+	private List<Action> reinforcementLearning(PriorityQueue<Node> pQueue,
 			Node highestRewardNode) {
 		Node currentNode = pQueue.poll();
 		if (currentNode == null) {
@@ -55,24 +88,28 @@ public class ReinforcementLearning {
 			return currentNode.getActionSequence();
 		}
 		if ((highestRewardNode == null)
-				|| (currentNode.getReward() < highestRewardNode.getReward())) {
+				|| (currentNode.getReward() > highestRewardNode.getReward())) {
 			highestRewardNode = currentNode;
+
 			// } else {
 			// actual algorithm
+
 			// 1. compute data center for current node
 			SimulateAction simulation = new SimulateAction(dataCenter);
 			dataCenter = simulation.doActions(currentNode.getActionSequence());
-
 			// 2. get broken policies of the current node
 			Evaluator evaluator = new Evaluator(dataCenter);
 			List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
 					.getViolatedPolicies();
+
 			// 3. undo actions on data center
-			dataCenter = simulation
-					.undoActions(currentNode.getActionSequence());
 			Node nextNode = null;
+
 			// 4. iterate through policies
-			for (PolicyInstance policy : broken_GPI_KPI_Policies) {
+			Iterator<PolicyInstance> iterator = broken_GPI_KPI_Policies
+					.iterator();
+			while (iterator.hasNext()) {
+				PolicyInstance policy = iterator.next();
 				Resource subject = policy.getResource();
 				if (subject instanceof VirtualMachine) {
 					VirtualMachine vm = (VirtualMachine) subject;
@@ -88,6 +125,7 @@ public class ReinforcementLearning {
 							nextNode = generateLeaf(currentNode, "WAKEUP",
 									deploymentServer, null, null);
 						} else {
+							System.out.println("intercloud mig");
 							// data center cannot fit any more VM's => need
 							// INTER CLOUD MIGRATION!!!
 						}
@@ -95,28 +133,57 @@ public class ReinforcementLearning {
 				}
 				if (subject instanceof Server) {
 					Server server = (Server) subject;
-					for (VirtualMachine localVM : server.getRunningVMs()) {
-						Server deploymentServer = findBestMatchingServer(
-								dataCenter, localVM);
-						if (deploymentServer != null) {
-							nextNode = generateLeaf(currentNode, "MIGRATE",
-									server, deploymentServer, localVM);
-						}
-					}
 					if (server.getRunningVMs().size() == 0) {
 						// shut down server
 						nextNode = generateLeaf(currentNode, "SHUTDOWN",
 								server, null, null);
 					}
+
+					List<VirtualMachine> copy = new ArrayList<VirtualMachine>(
+							server.getRunningVMs());
+					for (VirtualMachine localVM : copy) {
+						Server deploymentServer = findBestMatchingServer(
+								dataCenter, localVM);
+						if (deploymentServer == null) {
+							deploymentServer = findServerToWakeUp(dataCenter);
+							if (deploymentServer != null) {
+								nextNode = generateLeaf(currentNode, "WAKEUP",
+										deploymentServer, null, null);
+							}
+						} else {
+							nextNode = generateLeaf(currentNode, "MIGRATE",
+									server, deploymentServer, localVM);
+						}
+					}
 				}
 				pQueue.add(nextNode);
 			}
+			dataCenter = simulation
+					.undoActions(currentNode.getActionSequence());
 		}
+
 		return reinforcementLearning(pQueue, highestRewardNode);
 	}
 
-	private Server findServerToWakeUp(DataCenter dataCenter2) {
-		// TODO Auto-generated method stub
+	private void executeFinalActions(List<Action> finalActions) {
+		for (Action action : finalActions) {
+			CloudLogger.getInstance().LogInfo(
+					action.toString() + " will be executed ...");
+		}
+
+		Execution execution = new Execution();
+		execution.updateDatabase(dataCenter, finalActions);
+		execution.executeActions(finalActions);
+	}
+
+	private Server findServerToWakeUp(DataCenter dataCenter) {
+		List<Server> allServers = dataCenter.getServerPool();
+		for (Server server : allServers) {
+			if (server.getState().equals(ServerState.OFF.toString())) {
+				server.setState(ServerState.ON.toString());
+				return server;
+			}
+		}
 		return null;
 	}
 
@@ -130,9 +197,7 @@ public class ReinforcementLearning {
 	 */
 	private Server findBestMatchingServer(DataCenter dataCenter,
 			VirtualMachine vm) {
-		// TODO instead of findAll(), eventual findByDataCenter
-		FacadeFactory factory = new FacadeFactory();
-		List<Server> allServers = factory.createServerFacade().findAll();
+		List<Server> allServers = dataCenter.getServerPool();
 
 		float bestRemainingRAMCapacity = Float.MAX_VALUE;
 		float bestRemainingCPUFrequency = Float.MAX_VALUE;
@@ -145,7 +210,9 @@ public class ReinforcementLearning {
 				float availableCPUFrequency = server.getAvailableCPUFrequency()
 						- vm.getCPU().getTotalFrequency();
 				if (availableRAMCapacity < bestRemainingRAMCapacity
-						&& availableCPUFrequency < bestRemainingCPUFrequency) {
+						&& availableCPUFrequency < bestRemainingCPUFrequency
+						&& availableRAMCapacity > 0
+						&& availableCPUFrequency > 0) {
 					bestRemainingRAMCapacity = availableRAMCapacity;
 					bestRemainingCPUFrequency = availableCPUFrequency;
 					bestServer = server;
@@ -155,14 +222,13 @@ public class ReinforcementLearning {
 		return bestServer;
 	}
 
-	/** */
-	public Node generateLeaf(Node currentNode, String actionType, Server src,
+	private Node generateLeaf(Node currentNode, String actionType, Server src,
 			Server dest, VirtualMachine vm) {
 		Action action = null;
 		float entropy = 0;
+
 		float oldEntropy = currentNode.getEntropy();
 		float oldReward = currentNode.getReward();
-		Node newNode = new Node();
 		switch (actionType) {
 		case "DEPLOY":
 			action = new Deploy(src, dest, vm);
@@ -171,34 +237,26 @@ public class ReinforcementLearning {
 			action = new Migrate(src, dest, vm);
 			break;
 		case "WAKEUP":
-
+			action = new TurnOnServer(src, dest, vm);
 			break;
 		case "SHUTDOWN":
 			action = new TurnOffServer(src, dest, vm);
-			// ServerService serverService = (ServerService)
-			// CloudManagerFactory.getService(ServiceType.SERVER);
-			// ServerModel serverModel = null;
-			// try {
-			// serverModel = serverService.getById(src.getID());
-			// } catch (ServiceCenterAccessException e) {
-			// CloudLogger.getInstance().LogInfo(e.getMessage());
-			// e.printStackTrace();
-			// }
-			// ServerOperations.shutDown(serverModel);
 			break;
 		}
 		// 1. compute data center for current node
 		SimulateAction simulation = new SimulateAction(dataCenter);
-		List<Action> actions = currentNode.getActionSequence();
+		List<Action> actions = new ArrayList<Action>();
+		actions.addAll(currentNode.getActionSequence());
 		// CHECK TO BE ADDED AT THE END
 		actions.add(action);
-		dataCenter = simulation.doActions(actions);
+		dataCenter = simulation.doAction(action);
 		// 2. get broken policies of the current node
 		Evaluator evaluator = new Evaluator(dataCenter);
 		entropy = evaluator.computeEntropy(dataCenter);
 		// 3. undo actions on data center
-		dataCenter = simulation.undoActions(actions);
+		dataCenter = simulation.undoAction(action);
 		// 4. instantiate node
+		Node newNode = new Node();
 		newNode.setActionSequence(actions);
 		newNode.setEntropy(entropy);
 		// PAGINA 38 DELIVARABLE GAMES
@@ -210,30 +268,4 @@ public class ReinforcementLearning {
 
 	}
 
-	private PriorityQueue<Node> constructPriorityQueue(float entropy) {
-		Node root = new Node();
-		root.setEntropy(entropy);
-		Evaluator evaluator = new Evaluator(dataCenter);
-		List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
-				.getViolatedPolicies();
-		List<Action> actionSequence = new ArrayList<Action>();
-		for (PolicyInstance policy : broken_GPI_KPI_Policies) {
-			Resource subject = policy.getResource();
-			if (subject instanceof VirtualMachine) {
-				VirtualMachine vm = (VirtualMachine) subject;
-				Server deploymentServer = findBestMatchingServer(dataCenter, vm);
-				if (deploymentServer != null) {
-					Action action = new Deploy(null, deploymentServer, vm);
-					actionSequence.add(action);
-					root.setActionSequence(actionSequence);
-					root.setReward(root.computeReward(3, entropy, 0, 1));
-					break;
-				}
-			}
-		}
-
-		PriorityQueue<Node> queue = new PriorityQueue<Node>();
-		queue.add(root);
-		return queue;
-	}
 }

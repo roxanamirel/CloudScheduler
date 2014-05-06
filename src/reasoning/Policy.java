@@ -14,7 +14,7 @@ public abstract class Policy implements Serializable {
 	private float weight;
 
 	private List<String> params;
-	
+
 	/**
 	 * Parameters passed from Abstract factory
 	 * */
@@ -45,7 +45,8 @@ public abstract class Policy implements Serializable {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(RuleName name) {
 		this.name = name;
@@ -59,11 +60,11 @@ public abstract class Policy implements Serializable {
 	}
 
 	/**
-	 * @param params the params to set
+	 * @param params
+	 *            the params to set
 	 */
 	public void setParams(List<String> params) {
 		this.params = params;
 	}
-
 
 }

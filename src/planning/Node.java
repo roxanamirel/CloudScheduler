@@ -8,13 +8,12 @@ public class Node implements Comparable<Node> {
 	private float reward;
 	private static final float GAMMA = 1;
 	private List<Action> actionSequence;
-	
 
-	/** */
+	@Override
 	public int compareTo(Node obj) {
-		if (this.reward > obj.reward)
+		if (this.reward < obj.reward)
 			return 1;
-		else if (this.reward < obj.reward)
+		else if (this.reward > obj.reward)
 			return -1;
 		return 0;
 
@@ -46,7 +45,6 @@ public class Node implements Comparable<Node> {
 
 	public float computeReward(float reward, float entropy, float oldEntropy,
 			float cost) {
-		return reward + GAMMA * (entropy - oldEntropy - cost);
-
+		return reward + GAMMA * (oldEntropy - entropy - cost);
 	}
 }
