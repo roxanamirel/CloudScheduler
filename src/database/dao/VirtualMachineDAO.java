@@ -33,9 +33,7 @@ public class VirtualMachineDAO  {
 	}
 
 	public VirtualMachine find(int entityID) {
-		em.getTransaction().begin();
 		VirtualMachine vm = em.find(VirtualMachine.class, entityID);
-		em.getTransaction().commit();
 		return vm;
 		
 	}

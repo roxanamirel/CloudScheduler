@@ -17,7 +17,7 @@ public class CPU extends ITComputingResource {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int ID;
-	@OneToMany(mappedBy = "cpu", cascade = CascadeType.PERSIST)
+	@OneToMany(mappedBy = "cpu", cascade = CascadeType.ALL)
 	private List<CPUCore> cores;
 
 	public CPU() {

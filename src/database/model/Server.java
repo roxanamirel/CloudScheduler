@@ -24,8 +24,10 @@ public class Server extends ITComputingResource {
 	private HDD HDD;
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private DataCenter dataCenter;
+	@OneToOne(cascade = CascadeType.PERSIST)
+	private Rack rack;
 	
-	@OneToMany(mappedBy = "host",cascade  = CascadeType.PERSIST,fetch=FetchType.EAGER )
+	@OneToMany(mappedBy = "host",cascade  = CascadeType.ALL,fetch=FetchType.EAGER )
 	private List<VirtualMachine> runningVMs = new ArrayList<VirtualMachine>();
 
 	public Server(){}
@@ -134,6 +136,22 @@ public class Server extends ITComputingResource {
 		this.dataCenter = dataCenter;
 	}
 	
+	/**
+	 * @return the rack
+	 */
+	public Rack getRack() {
+		return rack;
+	}
+
+
+	/**
+	 * @param rack the rack to set
+	 */
+	public void setRack(Rack rack) {
+		this.rack = rack;
+	}
+
+
 	public float getAvailableCPUFrequency(){
 		float avaiableCPUFrequency = this.CPU.getTotalFrequency();
 		for(VirtualMachine vm : this.runningVMs){

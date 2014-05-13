@@ -2,6 +2,8 @@ package planning;
 
 import java.util.Iterator;
 import java.util.List;
+
+import planning.actions.Action;
 import database.model.DataCenter;
 
 public class SimulateAction {

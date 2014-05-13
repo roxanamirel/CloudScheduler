@@ -29,5 +29,7 @@ public class MessageHelperTest {
 		
 		assertEquals(2,strings.size());
 	}
+	
+	
 
 }

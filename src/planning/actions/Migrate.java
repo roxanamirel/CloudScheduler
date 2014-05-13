@@ -1,4 +1,4 @@
-package planning;
+package planning.actions;
 
 import database.model.DataCenter;
 import database.model.Server;

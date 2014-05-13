@@ -1,4 +1,4 @@
-package planning;
+package planning.actions;
 
 import util.ServerState;
 import database.model.DataCenter;

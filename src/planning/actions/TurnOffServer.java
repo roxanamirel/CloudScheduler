@@ -1,4 +1,4 @@
-package planning;
+package planning.actions;
 
 import util.ServerState;
 import database.model.DataCenter;
@@ -6,7 +6,7 @@ import database.model.Server;
 import database.model.VirtualMachine;
 
 public class TurnOffServer extends Action {
-	
+
 	private static final float COST = 0;
 
 	public TurnOffServer(Server sourceServer, Server destinationServerID,
@@ -19,7 +19,7 @@ public class TurnOffServer extends Action {
 		Server server = this.getSourceServer();
 		for (Server s : dc.getServerPool()) {
 			if (s.getID() == server.getID()) {
-				s.setState(ServerState.OFF.toString());
+					s.setState(ServerState.OFF.toString());
 			}
 		}
 		return dc;

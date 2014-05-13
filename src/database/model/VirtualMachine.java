@@ -12,10 +12,10 @@ public class VirtualMachine extends ApplicationResource {
 	@Id
 	private int ID;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
 	private CPU CPU;
 
-	@OneToOne(cascade = CascadeType.ALL)
+	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
 	private RAM RAM;
 
 	@OneToOne(cascade = CascadeType.PERSIST)

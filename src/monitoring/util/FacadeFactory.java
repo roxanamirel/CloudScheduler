@@ -14,22 +14,32 @@ import database.facade.VirtualMachineFacade;
 import database.facade.VirtualMachineFacadeImpl;
 
 public class FacadeFactory {
-	
-	private EntityManager entityManager = DBConnection.connect(); 
+
+	private EntityManager entityManager;
+
+	public FacadeFactory() {
+		this.entityManager = DBConnection.connect();
+	}
 
 	public ServerFacade createServerFacade() {
 		return new ServerFacadeImpl(new ServerDAO(entityManager));
 	}
-	
+
 	public VirtualMachineFacade createVirtualMachineFacade() {
-		return new VirtualMachineFacadeImpl(new VirtualMachineDAO(entityManager));
+		return new VirtualMachineFacadeImpl(
+				new VirtualMachineDAO(entityManager));
 	}
-	
+
 	public DataCenterFacade createDataCenterFacade() {
 		return new DataCenterFacadeImpl(new DataCenterDAO(entityManager));
 	}
-	
+
 	public void closeConnection() {
+		entityManager.close();
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
 		entityManager.close();
 	}
 }

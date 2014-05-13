@@ -29,8 +29,6 @@ public class ResourceAdapter {
 				virtualMachine.setName(model.getName());
 				virtualMachine.setCPU(constructCPU(model));
 				virtualMachine.setRAM(constructRAM(model));
-				// virtualMachine.setHost(constructHost(model));
-				// constructHost(model);
 			} catch (ServiceCenterAccessException e) {
 				e.printStackTrace();
 			}
@@ -40,7 +38,6 @@ public class ResourceAdapter {
 					.getService(ServiceType.SERVER);
 			try {
 				ServerModel model = serverService.getById(resource.getID());
-				//model.s
 			} catch (ServiceCenterAccessException e) {
 				e.printStackTrace();
 			}

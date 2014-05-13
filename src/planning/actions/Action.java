@@ -1,4 +1,4 @@
-package planning;
+package planning.actions;
 
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;

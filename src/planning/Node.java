@@ -2,6 +2,8 @@ package planning;
 
 import java.util.List;
 
+import planning.actions.Action;
+
 public class Node implements Comparable<Node> {
 
 	private float entropy;
@@ -16,7 +18,6 @@ public class Node implements Comparable<Node> {
 		else if (this.reward > obj.reward)
 			return -1;
 		return 0;
-
 	}
 
 	public List<Action> getActionSequence() {

@@ -2,22 +2,27 @@ package execution;
 
 import java.util.List;
 
+import database.facade.ServerFacade;
+import database.facade.VirtualMachineFacade;
 import database.model.DataCenter;
+import database.model.Server;
+import database.model.VirtualMachine;
 
 import os.ServerOperations;
 
 import logger.CloudLogger;
 import models.ServerModel;
 import models.VMModel;
+import monitoring.util.FacadeFactory;
 
 import enums.ServiceType;
 import exceptions.ServiceCenterAccessException;
 import factory.CloudManagerFactory;
-import planning.Action;
-import planning.Deploy;
-import planning.Migrate;
-import planning.TurnOffServer;
-import planning.TurnOnServer;
+import planning.actions.Action;
+import planning.actions.Deploy;
+import planning.actions.Migrate;
+import planning.actions.TurnOffServer;
+import planning.actions.TurnOnServer;
 import services.ServerService;
 import services.VMService;
 
@@ -38,26 +43,63 @@ public class Execution {
 
 	public DataCenter updateDatabase(DataCenter dataCenter,
 			List<Action> finalActions) {
+		FacadeFactory facadeFactory = finalActions.get(0).getFacadeFactory();
+		VirtualMachineFacade vmFacade =  facadeFactory.createVirtualMachineFacade();
+		ServerFacade serverFacade = facadeFactory.createServerFacade();
 		
 		for(Action action : finalActions) {
-			
+			dataCenter = action.Do(dataCenter);
 			if (action instanceof Deploy) {
-				action.getFacadeFactory().createVirtualMachineFacade().update(action.getVM());
-				action.getFacadeFactory().createServerFacade().update(action.getDestinationServer());
+				for(VirtualMachine vm:dataCenter.getVMPool()){
+					if(vm.getID() == action.getVM().getID()){
+						vmFacade.update(vm);
+						break;
+					}
+				}
+				
+				for(Server server:dataCenter.getServerPool()){
+					if(server.getID() == action.getDestinationServer().getID() ){
+						serverFacade.update(server);
+						break;
+					}
+				}
+				
 			}
 			if (action instanceof Migrate) {
-				action.getFacadeFactory().createVirtualMachineFacade().update(action.getVM());
-				action.getFacadeFactory().createServerFacade().update(action.getDestinationServer());
-				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+				for(VirtualMachine vm:dataCenter.getVMPool()){
+					if(vm.getID() == action.getVM().getID()){
+						vmFacade.update(vm);
+						break;
+					}
+				}
+				for(Server server:dataCenter.getServerPool()){
+					if(server.getID() == action.getDestinationServer().getID() ){
+						serverFacade.update(server);
+						break;
+					}
+					if(server.getID() == action.getSourceServer().getID() ){
+						serverFacade.update(server);
+						break;
+					}
+				}
 			}
 			if (action instanceof TurnOffServer) {
-				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+				for(Server server:dataCenter.getServerPool()){
+					if(server.getID() == action.getSourceServer().getID() ){
+						serverFacade.update(server);
+						break;
+					}
+				}
 			}
 			if (action instanceof TurnOnServer) {
-				action.getFacadeFactory().createServerFacade().update(action.getSourceServer());
+				for(Server server:dataCenter.getServerPool()){
+					if(server.getID() == action.getSourceServer().getID() ){
+						serverFacade.update(server);
+						break;
+					}
+				}
 			}
 		}		
-		
 		return dataCenter;
 	}
 
