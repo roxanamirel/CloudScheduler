@@ -35,8 +35,8 @@ public class ReinforcementLearning {
 		this.pQueue = constructPriorityQueue(entropy);
 		List<Action> finalActions = new ArrayList<Action>(
 				reinforcementLearning(pQueue, null));
-		executeFinalActions(finalActions);
-	}	
+		executeActions(finalActions);
+	}
 
 	/**
 	 * Returns the actions to be executed after applying the algorithm
@@ -132,7 +132,7 @@ public class ReinforcementLearning {
 		return reinforcementLearning(pQueue, highestRewardNode);
 	}
 
-	private void executeFinalActions(List<Action> finalActions) {
+	private void executeActions(List<Action> finalActions) {
 		finalActions = combineActions(finalActions);
 		for (Action action : finalActions) {
 			CloudLogger.getInstance().LogInfo(
@@ -144,34 +144,33 @@ public class ReinforcementLearning {
 		execution.executeActions(finalActions);
 	}
 
+	/**
+	 * Returns an improved list of actions E.g avoids deploying and migrating
+	 * the same virtual machine, by just deploying it on the right server
+	 * 
+	 * @param finalActions
+	 *            = the actions to be combined and improved
+	 * @return improved <code>finalActions</code>
+	 */
 	private List<Action> combineActions(List<Action> finalActions) {
+
+		Map<Integer, LinkedList<Action>> hashMap = createHashMapBasedOnActions(finalActions);
 		List<Action> solution = new ArrayList<Action>();
-		Map<Integer, LinkedList<Action>> hashMap = new HashMap<Integer, LinkedList<Action>>();
-		Iterator<Action> it = finalActions.iterator();
-		while (it.hasNext()) {
-			Action action = it.next();
-			if (action instanceof Deploy || action instanceof Migrate) {
-				if (hashMap.get(action.getVM().getID()) == null) {
-					hashMap.put(action.getVM().getID(),
-							new LinkedList<Action>());
-				}
-				hashMap.get(action.getVM().getID()).add(action);
-			}
-		}
-		Deploy deploy = null;
+
 		for (Action action : finalActions) {
-			if (hashMap.get(action.getVM().getID()) != null
+			if (action.getVM() != null
+					&& hashMap.containsKey(action.getVM().getID())
 					&& hashMap.get(action.getVM().getID()).size() > 1) {
-				LinkedList<Action> values = hashMap.get(action.getVM().getID());
-				if (values.get(0) instanceof Deploy
-						&& values.getLast() instanceof Migrate) {
-					Server deploymentServer = hashMap
-							.get(action.getVM().getID()).getLast()
+				LinkedList<Action> actions = hashMap
+						.get(action.getVM().getID());
+
+				if (actions.getFirst() instanceof Deploy
+						&& actions.getLast() instanceof Migrate) {
+					Server deploymentServer = actions.getLast()
 							.getDestinationServer();
-					VirtualMachine vm = hashMap.get(action.getVM().getID())
-							.get(0).getVM();
-					deploy = new Deploy(null, deploymentServer, vm);
-					if (!actionIsInserted(solution, deploy)) {
+					VirtualMachine vm = actions.getFirst().getVM();
+					Action deploy = new Deploy(null, deploymentServer, vm);
+					if (!solution.contains(deploy)) {
 						solution.add(deploy);
 					}
 				}
@@ -183,20 +182,37 @@ public class ReinforcementLearning {
 		return solution;
 	}
 
-	private boolean actionIsInserted(List<Action> solution, Action action) {
-		for (Action a : solution) {
-			if (a instanceof Deploy) {
-				Deploy d = (Deploy) a;
-				if (d.getVM().getID() == ((Deploy) action).getVM().getID()
-						&& d.getDestinationServer().getID() == ((Deploy) action)
-								.getDestinationServer().getID()) {
-					return true;
+	/**
+	 * Creates a map containing as key virtual machine's id, and as values a
+	 * linkedList containing the operations to be performed on that virtual
+	 * machine
+	 * 
+	 * @param actions
+	 *            are used to build the map
+	 * @return a map containing the all the actions associated to each virtual
+	 *         machine's id
+	 */
+	private Map<Integer, LinkedList<Action>> createHashMapBasedOnActions(
+			List<Action> actions) {
+		Map<Integer, LinkedList<Action>> hashMap = new HashMap<Integer, LinkedList<Action>>();
+		for (Action action : actions) {
+			if (action instanceof Deploy || action instanceof Migrate) {
+				if (hashMap.get(action.getVM().getID()) == null) {
+					hashMap.put(action.getVM().getID(),
+							new LinkedList<Action>());
 				}
+				hashMap.get(action.getVM().getID()).add(action);
 			}
 		}
-		return false;
+		return hashMap;
 	}
 
+	/**
+	 * Returns the first server which is off. Also sets its state as on.
+	 * 
+	 * @param dataCenter
+	 * @return first server which is off
+	 */
 	private Server findServerToWakeUp(DataCenter dataCenter) {
 		List<Server> allServers = dataCenter.getServerPool();
 		for (Server server : allServers) {
@@ -246,7 +262,6 @@ public class ReinforcementLearning {
 	private Node generateLeaf(Node currentNode, String actionType, Server src,
 			Server dest, VirtualMachine vm) {
 		Action action = null;
-		float entropy = 0;
 
 		float oldEntropy = currentNode.getEntropy();
 		float oldReward = currentNode.getReward();
@@ -273,21 +288,21 @@ public class ReinforcementLearning {
 		dataCenter = simulation.doAction(action);
 		// 2. get broken policies of the current node
 		Evaluator evaluator = new Evaluator(dataCenter);
-		entropy = evaluator.computeEntropy(dataCenter);
+		float entropy = evaluator.computeEntropy(dataCenter);
 		// 3. undo actions on data center
 		dataCenter = simulation.undoAction(action);
-		// 4. instantiate node		
+		// 4. instantiate node
 		Node newNode = new Node();
 		newNode.setActionSequence(actions);
 		newNode.setEntropy(entropy);
 		// PAGINA 38 DELIVARABLE GAMES
-		float reward = newNode.computeReward(oldReward, entropy, oldEntropy,
+		float reward = newNode.computeReward(oldReward, oldEntropy,
 				action.getCost());
 		newNode.setReward(reward);
 
 		return newNode;
 	}
-	
+
 	private PriorityQueue<Node> constructPriorityQueue(float oldEntropy) {
 		Evaluator evaluator = new Evaluator(dataCenter);
 		List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
@@ -338,15 +353,12 @@ public class ReinforcementLearning {
 		Node root = new Node();
 		SimulateAction simulation = new SimulateAction(dataCenter);
 		dataCenter = simulation.doActions(actionSequence);
-		// 2. get broken policies of the current node
 		float entropy = evaluator.computeEntropy(dataCenter);
-		// 3. undo actions on data center
 		dataCenter = simulation.undoActions(actionSequence);
 		root.setEntropy(entropy);
 		root.setActionSequence(actionSequence);
-		root.setReward(root.computeReward(0, root.getEntropy(), oldEntropy,
-				actionSequence.get(0).getCost()));
+		root.setReward(root.computeReward(0, oldEntropy, actionSequence.get(0)
+				.getCost()));
 		return root;
 	}
-
 }

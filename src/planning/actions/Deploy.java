@@ -57,4 +57,14 @@ public class Deploy extends Action {
 		}
 		return dc;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Deploy " + getVM() + " on " + getDestinationServer();
+	}
+	
+	
 }

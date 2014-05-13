@@ -28,18 +28,20 @@ public class ServerPolicy extends Policy {
 	@Override
 	public boolean evaluate(Resource r) {
 		Server server = (Server) r;
-		if(server.getState().equals(ServerState.OFF.toString())) return false;
+		if (server.getState().equals(ServerState.OFF.toString()))
+			return false;
+
 		float minCPU = this.cpuMin / 100 * server.getCPU().getTotalFrequency();
 		float maxCPU = this.cpuMax / 100 * server.getCPU().getTotalFrequency();
 		float minRAM = this.ramMin / 100 * server.getRAM().getCapacity();
 		float maxRAM = this.ramMax / 100 * server.getRAM().getCapacity();
-		
+
 		float availableCPUFrequency = server.getAvailableCPUFrequency();
 		float availableRAMCapacity = server.getAvailableRAMCapacity();
-		return !(availableCPUFrequency > minCPU && 
-				availableCPUFrequency  < maxCPU && 
-				availableRAMCapacity   > minRAM && 
-				availableRAMCapacity   < maxRAM);
+
+		return !(availableCPUFrequency > minCPU
+				&& availableCPUFrequency < maxCPU
+				&& availableRAMCapacity > minRAM && availableRAMCapacity < maxRAM);
 
 	}
 
@@ -51,17 +53,18 @@ public class ServerPolicy extends Policy {
 	 * in the Euclidean space.
 	 * */
 	@Override
-	public float computeQoSViolation(Resource serverResource, Resource serverReference) {
+	public float computeQoSViolation(Resource serverResource,
+			Resource serverReference) {
 		Server server = (Server) serverResource;
 		Server optimalLoad = (Server) serverReference;
 		double absRam = Math.abs(optimalLoad.getRAM().getCapacity()
 				- server.getRAM().getCapacity());
 		double absCPU = Math.abs(optimalLoad.getCPU().getTotalFrequency()
 				- server.getCPU().getTotalFrequency());
-//		double absHDD = Math.abs(optimalLoad.getHDD().getCapacity()
-//				- server.getHDD().getCapacity());
-		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)
-				/*+ Math.pow(absHDD, 2)*/);
+		// double absHDD = Math.abs(optimalLoad.getHDD().getCapacity()
+		// - server.getHDD().getCapacity());
+		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 100;
+		/* + Math.pow(absHDD, 2)); */
 	}
 
 	/**

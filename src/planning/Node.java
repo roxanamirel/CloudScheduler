@@ -44,8 +44,8 @@ public class Node implements Comparable<Node> {
 		this.reward = reward;
 	}
 
-	public float computeReward(float reward, float entropy, float oldEntropy,
-			float cost) {
-		return reward + GAMMA * (oldEntropy - entropy - cost);
+	public float computeReward(float oldNodeReward, float oldNodeEntropy,
+			float actionCost) {
+		return oldNodeReward + GAMMA * (oldNodeEntropy - entropy - actionCost);
 	}
 }

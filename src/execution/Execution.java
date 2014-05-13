@@ -109,12 +109,13 @@ public class Execution {
 		}
 	}
 
+	@SuppressWarnings("static-access")
 	private void execute(Action action) {
 		ServerModel destServerModel = null;
 		ServerModel sourceServerModel = null;
 		VMModel vmModel = null;
 		CloudLogger.getInstance().LogInfo(
-				"Executing " + action.getClass().getName());
+				"Executing " + action.toString());
 		try {
 			if (action.getDestinationServer() != null) {
 				destServerModel = serverService.getById(action

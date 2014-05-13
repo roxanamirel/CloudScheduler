@@ -28,7 +28,8 @@ public class QueueProcessor extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			CloudLogger.getInstance().LogInfo("Waiting for VM's");
+			//CloudLogger.getInstance().LogInfo("Waiting for VM's");
+			
 			while (!incoming.isEmpty()) {
 				try {
 					Thread.sleep(1000);

@@ -28,19 +28,6 @@ public abstract class Action {
 		this.cost = cost;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName() 
-				+ "[sourceServer="	+ sourceServer 
-				+ ", destinationServer=" + destinationServer
-				+ ", vm=" + vm + "]";
-	}
-
 	public abstract DataCenter Do(DataCenter dc);
 
 	public abstract DataCenter Undo(DataCenter dc);

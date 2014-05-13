@@ -6,7 +6,6 @@ import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
 
-/** */
 public class VMPolicy extends Policy {
 
 	private String state;
@@ -45,7 +44,7 @@ public class VMPolicy extends Policy {
 				- server.getCPU().getTotalFrequency());
 //		double absHDD = Math.abs(vm.getHDD().getCapacity()
 //				- server.getHDD().getCapacity());
-		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 40000;
+		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 100;
 				//+ Math.pow(absHDD, 2));
 	}
 

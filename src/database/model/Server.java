@@ -118,8 +118,7 @@ public class Server extends ITComputingResource {
 	 */
 	@Override
 	public String toString() {
-		return "Server [CPU=" + CPU + ", RAM=" + RAM + ", HDD=" + HDD
-				+ ", runningVMs=" + runningVMs + "]";
+		return "Server ID=" + getID();
 	}
 
 	/**

@@ -32,6 +32,15 @@ public class Migrate extends Action {
 		updateDestinationServer(sourceServer, dc);
 		return dc;
 	}
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Migrate " + getVM() + " from " + getSourceServer() + " to "
+				+ getDestinationServer();
+	}
 
 	private void updateVirtualMachine(Server server, DataCenter dc) {
 		this.getVM().setHost(server);
