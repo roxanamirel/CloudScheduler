@@ -30,6 +30,19 @@ public class MessageHelperTest {
 		assertEquals(2,strings.size());
 	}
 	
+	@Test
+	public void test3() {
+		float min = 20;
+		
+		float a = min / 100 * 0.12345f;		
+		float b = (float) min / 100 * 0.12345f;
+		
+		System.out.println(a);
+		System.out.println(b);
+		
+		assertTrue(a == b);
+	}
+	
 	
 
 }

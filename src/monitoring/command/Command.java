@@ -14,5 +14,9 @@ public enum Command {
 	CUSTOM,
 	
 	ERROR,
-	DISABLE
+	DISABLE,
+	
+	WAKEUP,
+	DEPLOY,
+	MIGRATE
 }

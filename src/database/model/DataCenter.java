@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import reasoning.*;
+import reasoning.policies.Policy;
 
 @Entity
 @Table(name = "DataCenter")

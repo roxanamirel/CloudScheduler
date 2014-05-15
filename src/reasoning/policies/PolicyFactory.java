@@ -1,4 +1,6 @@
-package reasoning;
+package reasoning.policies;
+
+import reasoning.RuleFileMapper;
 
 /** */
 public class PolicyFactory {

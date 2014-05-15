@@ -1,6 +1,8 @@
-package reasoning;
+package reasoning.policies;
 
 import java.util.List;
+
+import reasoning.RuleName;
 
 import database.model.Resource;
 import database.model.Server;

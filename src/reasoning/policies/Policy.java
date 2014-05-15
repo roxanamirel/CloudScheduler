@@ -1,7 +1,9 @@
-package reasoning;
+package reasoning.policies;
 
 import java.io.Serializable;
 import java.util.List;
+
+import reasoning.RuleName;
 import database.model.Resource;
 
 /** */

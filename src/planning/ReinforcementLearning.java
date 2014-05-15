@@ -15,8 +15,9 @@ import planning.actions.TurnOffServer;
 import planning.actions.TurnOnServer;
 
 import logger.CloudLogger;
+import monitoring.command.Command;
 import reasoning.Evaluator;
-import reasoning.PolicyInstance;
+import reasoning.policies.PolicyInstance;
 import util.ServerState;
 import database.model.DataCenter;
 import database.model.Resource;
@@ -82,14 +83,15 @@ public class ReinforcementLearning {
 					Server deploymentServer = findBestMatchingServer(
 							dataCenter, vm);
 					if (deploymentServer != null) {
-						nextNode = generateLeaf(currentNode, "DEPLOY", null,
-								deploymentServer, vm);
+						nextNode = generateLeaf(currentNode, Command.DEPLOY,
+								null, deploymentServer, vm);
 					} else {
 						// need to wake-up one server
 						deploymentServer = findServerToWakeUp(dataCenter);
 						if (deploymentServer != null) {
-							nextNode = generateLeaf(currentNode, "WAKEUP",
-									deploymentServer, null, null);
+							nextNode = generateLeaf(currentNode,
+									Command.WAKEUP, deploymentServer, null,
+									null);
 						} else {
 							System.out.println("intercloud mig");
 							// data center cannot fit any more VM's => need
@@ -101,7 +103,7 @@ public class ReinforcementLearning {
 					Server server = (Server) subject;
 					if (server.getRunningVMs().size() == 0) {
 						// shut down server
-						nextNode = generateLeaf(currentNode, "SHUTDOWN",
+						nextNode = generateLeaf(currentNode, Command.SHUTDOWN,
 								server, null, null);
 					} else {
 
@@ -113,13 +115,15 @@ public class ReinforcementLearning {
 						if (deploymentServer == null) {
 							deploymentServer = findServerToWakeUp(dataCenter);
 							if (deploymentServer != null) {
-								nextNode = generateLeaf(currentNode, "WAKEUP",
-										deploymentServer, null, null);
+								nextNode = generateLeaf(currentNode,
+										Command.WAKEUP, deploymentServer, null,
+										null);
 							}
 							// else intercloud TODO
 						} else if (deploymentServer.getID() != server.getID()) {
-							nextNode = generateLeaf(currentNode, "MIGRATE",
-									server, deploymentServer, vmCopy);
+							nextNode = generateLeaf(currentNode,
+									Command.MIGRATE, server, deploymentServer,
+									vmCopy);
 						}
 					}
 				}
@@ -225,7 +229,7 @@ public class ReinforcementLearning {
 	}
 
 	/**
-	 * iterate through all servers from the data center find server that is best
+	 * Iterate through all servers from the data center find server that is best
 	 * filled by the VM in a greedy manner BEST FIT
 	 * 
 	 * @param dataCenter
@@ -234,8 +238,8 @@ public class ReinforcementLearning {
 	 */
 	private Server findBestMatchingServer(DataCenter dataCenter,
 			VirtualMachine vm) {
-		List<Server> allServers = dataCenter.getServerPool();
 
+		List<Server> allServers = dataCenter.getServerPool();
 		float bestRemainingRAMCapacity = Float.MAX_VALUE;
 		float bestRemainingCPUFrequency = Float.MAX_VALUE;
 		Server bestServer = null;
@@ -250,32 +254,55 @@ public class ReinforcementLearning {
 						&& availableCPUFrequency < bestRemainingCPUFrequency
 						&& availableRAMCapacity > 0
 						&& availableCPUFrequency > 0) {
-					bestRemainingRAMCapacity = availableRAMCapacity;
-					bestRemainingCPUFrequency = availableCPUFrequency;
-					bestServer = server;
+					if (!breaksPolicies(server, vm)) {
+						bestRemainingRAMCapacity = availableRAMCapacity;
+						bestRemainingCPUFrequency = availableCPUFrequency;
+						bestServer = server;
+					}
 				}
 			}
 		}
 		return bestServer;
 	}
 
-	private Node generateLeaf(Node currentNode, String actionType, Server src,
+	// TODO change with respect to all server policies
+	private boolean breaksPolicies(Server server, VirtualMachine vm) {
+		float min_CPU = 20;
+		float min_RAM = 30;
+		float max_CPU = 80;
+		float max_RAM = 90;
+		float minCPU = min_CPU / 100 * server.getCPU().getTotalFrequency();
+		float maxCPU = max_CPU / 100 * server.getCPU().getTotalFrequency();
+		float minRAM = min_RAM / 100 * server.getRAM().getCapacity();
+		float maxRAM = max_RAM / 100 * server.getRAM().getCapacity();
+
+		float availableCPUFrequency = server.getAvailableCPUFrequency()
+				- vm.getCPU().getTotalFrequency();
+		float availableRAMCapacity = server.getAvailableRAMCapacity()
+				- vm.getRAM().getCapacity();
+
+		return !(availableCPUFrequency > minCPU
+				&& availableCPUFrequency < maxCPU
+				&& availableRAMCapacity > minRAM && availableRAMCapacity < maxRAM);
+	}
+
+	private Node generateLeaf(Node currentNode, Command command, Server src,
 			Server dest, VirtualMachine vm) {
 		Action action = null;
 
 		float oldEntropy = currentNode.getEntropy();
 		float oldReward = currentNode.getReward();
-		switch (actionType) {
-		case "DEPLOY":
+		switch (command) {
+		case DEPLOY:
 			action = new Deploy(src, dest, vm);
 			break;
-		case "MIGRATE":
+		case MIGRATE:
 			action = new Migrate(src, dest, vm);
 			break;
-		case "WAKEUP":
+		case WAKEUP:
 			action = new TurnOnServer(src, dest, vm);
 			break;
-		case "SHUTDOWN":
+		case SHUTDOWN:
 			action = new TurnOffServer(src, dest, vm);
 			break;
 		}
@@ -286,12 +313,11 @@ public class ReinforcementLearning {
 		// CHECK TO BE ADDED AT THE END
 		actions.add(action);
 		dataCenter = simulation.doAction(action);
-		// 2. get broken policies of the current node
 		Evaluator evaluator = new Evaluator(dataCenter);
 		float entropy = evaluator.computeEntropy(dataCenter);
-		// 3. undo actions on data center
+		// undo actions on data center
 		dataCenter = simulation.undoAction(action);
-		// 4. instantiate node
+
 		Node newNode = new Node();
 		newNode.setActionSequence(actions);
 		newNode.setEntropy(entropy);
@@ -317,6 +343,16 @@ public class ReinforcementLearning {
 					Action action = new Deploy(null, deploymentServer, vm);
 					actionSequence.add(action);
 					break;
+				} else {
+					Server turnedOffServer = findServerToWakeUp(dataCenter);
+					if (turnedOffServer != null) {
+						Action turnOn = new TurnOnServer(turnedOffServer, null,
+								null);
+						Action deploy = new Deploy(null, turnedOffServer, vm);
+						actionSequence.add(turnOn);
+						actionSequence.add(deploy);
+						break;
+					}
 				}
 			} else if (subject instanceof Server) {
 				Server server = (Server) subject;
@@ -338,6 +374,11 @@ public class ReinforcementLearning {
 							break;
 						}
 						// else TODO intercloud
+					} else {
+						Action action = new Migrate(server, destinationServer,
+								vm);
+						actionSequence.add(action);
+						break;
 					}
 				}
 			}

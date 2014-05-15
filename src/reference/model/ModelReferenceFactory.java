@@ -3,8 +3,8 @@ package reference.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import reasoning.Policy;
-import reasoning.ServerPolicy;
+import reasoning.policies.Policy;
+import reasoning.policies.ServerPolicy;
 
 import monitoring.types.Type;
 import database.model.CPU;

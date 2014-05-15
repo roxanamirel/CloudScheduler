@@ -9,9 +9,9 @@ public class TurnOnServer extends Action {
 	
 	private static final float COST = 600;
 	
-	public TurnOnServer(Server sourceServerID, Server destinationServerID,
-			VirtualMachine vMID) {
-		super(sourceServerID, destinationServerID, vMID,COST);
+	public TurnOnServer(Server sourceServer, Server destinationServer,
+			VirtualMachine vm) {
+		super(sourceServer, destinationServer, vm,COST);
 	}
 
 	@Override

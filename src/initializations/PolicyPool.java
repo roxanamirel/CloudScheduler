@@ -3,10 +3,10 @@ package initializations;
 import java.util.ArrayList;
 import java.util.List;
 
-import reasoning.Policy;
-import reasoning.PolicyFactory;
 import reasoning.RuleFileMapper;
 import reasoning.RuleFileMapperReader;
+import reasoning.policies.Policy;
+import reasoning.policies.PolicyFactory;
 
 public class PolicyPool {
 	public static List<Policy> getPolicyPool() {

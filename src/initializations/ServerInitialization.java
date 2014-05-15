@@ -14,13 +14,14 @@ public class ServerInitialization {
 	
 	public static void main(String[] args) {
 		constructHost();
+		System.out.println("Done");
 	}
 	
 	private static void constructHost() {
 		Server host1 = new Server();
 		Server host2 = new Server();
 		host1.setID(52);
-		host2.setID(55);
+		host2.setID(57);
 		RAM ram = new RAM();
 		ram.setCapacity(3.7f);
 		host1.setRAM(ram);

@@ -2,6 +2,11 @@ package reasoning;
 
 import java.util.List;
 import monitoring.types.Type;
+import reasoning.policies.Policy;
+import reasoning.policies.PolicyInstance;
+import reasoning.policies.PolicyManager;
+import reasoning.policies.ServerPolicy;
+import reasoning.policies.VMPolicy;
 import reference.model.ModelReferenceFactory;
 import database.model.DataCenter;
 import database.model.Server;

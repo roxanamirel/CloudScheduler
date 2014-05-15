@@ -1,4 +1,4 @@
-package reasoning;
+package reasoning.policies;
 
 import database.model.Resource;
 

@@ -47,7 +47,7 @@ public class ResourceAdapter {
 
 	private static RAM constructRAM(VMModel model) {
 		RAM ram = new RAM();
-		ram.setCapacity(model.getMemory());
+		ram.setCapacity(model.getMemory() / 1024f);
 		return ram;
 	}
 
