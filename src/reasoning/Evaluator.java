@@ -1,7 +1,7 @@
 package reasoning;
 
 import java.util.List;
-import monitoring.types.Type;
+import monitoring.types.ReferenceModelType;
 import reasoning.policies.Policy;
 import reasoning.policies.PolicyInstance;
 import reasoning.policies.PolicyManager;
@@ -72,7 +72,7 @@ public class Evaluator {
 						.getPolicy()
 						.computeQoSViolation(
 								violatedPolicyInstance.getResource(),
-								ModelReferenceFactory.getReference(Type.SERVER));
+								ModelReferenceFactory.getReference(ReferenceModelType.SERVER));
 
 			}
 			if (violatedPolicyInstance.getPolicy() instanceof ServerPolicy) {

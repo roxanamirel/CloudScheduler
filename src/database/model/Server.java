@@ -16,11 +16,11 @@ import javax.persistence.Table;
 public class Server extends ITComputingResource {
 	@Id
 	private int ID;
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.ALL)
 	private CPU CPU;
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.ALL)
 	private RAM RAM;
-	@OneToOne(cascade = CascadeType.PERSIST)
+	@OneToOne(cascade = CascadeType.ALL)
 	private HDD HDD;
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private DataCenter dataCenter;

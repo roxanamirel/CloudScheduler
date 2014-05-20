@@ -6,10 +6,10 @@ import monitoring.types.*;
 public class Message {
 
 	private String id;
-	private Type type;
+	private ReferenceModelType type;
 	private Command command;
 	
-	public Message(String id, Type type, Command command) {
+	public Message(String id, ReferenceModelType type, Command command) {
 		this.id = id;
 		this.type = type;
 		this.command = command;
@@ -25,7 +25,7 @@ public class Message {
 	/**
 	 * @return the type
 	 */
-	public Type getType() {
+	public ReferenceModelType getType() {
 		return type;
 	}
 

@@ -2,12 +2,15 @@ package initializations;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import util.ServerState;
 import monitoring.util.FacadeFactory;
 import database.facade.ServerFacade;
 import database.model.CPU;
 import database.model.CPUCore;
 import database.model.DataCenter;
 import database.model.RAM;
+import database.model.Rack;
 import database.model.Server;
 
 public class ServerInitialization {
@@ -60,6 +63,12 @@ public class ServerInitialization {
 		host2.setState("ON");
 		host1.setDataCenter(dataCenter);
 		host2.setDataCenter(dataCenter);
+//		Rack rack = new Rack();
+//		rack.setDataCenter(dataCenter);
+//		rack.setState("ON");
+//		rack.setName("Rack1");
+//		host1.setRack(rack);
+//		host2.setRack(rack);
 		serverFacade.save(host1);
 		serverFacade.save(host2);
 

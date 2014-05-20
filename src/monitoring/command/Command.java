@@ -18,5 +18,8 @@ public enum Command {
 	
 	WAKEUP,
 	DEPLOY,
-	MIGRATE
+	MIGRATE,
+	INTERCLOUDMIGRATE,
+	
+	SHUTDOWN_RACK
 }

@@ -46,7 +46,7 @@ public class VMPolicy extends Policy {
 				- server.getCPU().getTotalFrequency());
 //		double absHDD = Math.abs(vm.getHDD().getCapacity()
 //				- server.getHDD().getCapacity());
-		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 100;
+		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 2000f;
 				//+ Math.pow(absHDD, 2));
 	}
 

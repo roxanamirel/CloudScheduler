@@ -11,6 +11,7 @@ import database.model.VirtualMachine;
 import os.ServerOperations;
 
 import logger.CloudLogger;
+import models.Datacenter;
 import models.ServerModel;
 import models.VMModel;
 import monitoring.util.FacadeFactory;
@@ -20,12 +21,12 @@ import exceptions.ServiceCenterAccessException;
 import factory.CloudManagerFactory;
 import planning.actions.Action;
 import planning.actions.Deploy;
+import planning.actions.InterCloudMigration;
 import planning.actions.Migrate;
 import planning.actions.TurnOffServer;
 import planning.actions.TurnOnServer;
 import services.ServerService;
 import services.VMService;
-
 
 public class Execution {
 	private ServerService serverService;
@@ -44,62 +45,72 @@ public class Execution {
 	public DataCenter updateDatabase(DataCenter dataCenter,
 			List<Action> finalActions) {
 		FacadeFactory facadeFactory = finalActions.get(0).getFacadeFactory();
-		VirtualMachineFacade vmFacade =  facadeFactory.createVirtualMachineFacade();
+		VirtualMachineFacade vmFacade = facadeFactory
+				.createVirtualMachineFacade();
 		ServerFacade serverFacade = facadeFactory.createServerFacade();
-		
-		for(Action action : finalActions) {
+
+		for (Action action : finalActions) {
 			dataCenter = action.Do(dataCenter);
 			if (action instanceof Deploy) {
-				for(VirtualMachine vm:dataCenter.getVMPool()){
-					if(vm.getID() == action.getVM().getID()){
+				for (VirtualMachine vm : dataCenter.getVMPool()) {
+					if (vm.getID() == action.getVM().getID()) {
 						vmFacade.update(vm);
 						break;
 					}
 				}
-				
-				for(Server server:dataCenter.getServerPool()){
-					if(server.getID() == action.getDestinationServer().getID() ){
+
+				for (Server server : dataCenter.getServerPool()) {
+					if (server.getID() == action.getDestinationServer().getID()) {
 						serverFacade.update(server);
 						break;
 					}
 				}
-				
+
 			}
 			if (action instanceof Migrate) {
-				for(VirtualMachine vm:dataCenter.getVMPool()){
-					if(vm.getID() == action.getVM().getID()){
+				for (VirtualMachine vm : dataCenter.getVMPool()) {
+					if (vm.getID() == action.getVM().getID()) {
 						vmFacade.update(vm);
 						break;
 					}
 				}
-				for(Server server:dataCenter.getServerPool()){
-					if(server.getID() == action.getDestinationServer().getID() ){
+				for (Server server : dataCenter.getServerPool()) {
+					if (server.getID() == action.getDestinationServer().getID()) {
 						serverFacade.update(server);
 						break;
 					}
-					if(server.getID() == action.getSourceServer().getID() ){
+					if (server.getID() == action.getSourceServer().getID()) {
 						serverFacade.update(server);
 						break;
 					}
 				}
 			}
 			if (action instanceof TurnOffServer) {
-				for(Server server:dataCenter.getServerPool()){
-					if(server.getID() == action.getSourceServer().getID() ){
+				for (Server server : dataCenter.getServerPool()) {
+					if (server.getID() == action.getSourceServer().getID()) {
 						serverFacade.update(server);
 						break;
 					}
 				}
 			}
 			if (action instanceof TurnOnServer) {
-				for(Server server:dataCenter.getServerPool()){
-					if(server.getID() == action.getSourceServer().getID() ){
+				for (Server server : dataCenter.getServerPool()) {
+					if (server.getID() == action.getSourceServer().getID()) {
 						serverFacade.update(server);
 						break;
 					}
 				}
 			}
-		}		
+
+			if (action instanceof InterCloudMigration) {
+				for (VirtualMachine vm : dataCenter.getVMPool()) {
+					if (vm.getID() == action.getVM().getID()) {
+						vmFacade.delete(vm);
+						break;
+					}
+				}
+			}
+		}
 		return dataCenter;
 	}
 
@@ -107,6 +118,7 @@ public class Execution {
 		for (Action action : listAction) {
 			execute(action);
 		}
+		CloudLogger.getInstance().LogInfo("Finished executing actions");
 	}
 
 	@SuppressWarnings("static-access")
@@ -114,8 +126,7 @@ public class Execution {
 		ServerModel destServerModel = null;
 		ServerModel sourceServerModel = null;
 		VMModel vmModel = null;
-		CloudLogger.getInstance().LogInfo(
-				"Executing " + action.toString());
+		CloudLogger.getInstance().LogInfo("Executing " + action.toString());
 		try {
 			if (action.getDestinationServer() != null) {
 				destServerModel = serverService.getById(action
@@ -143,6 +154,10 @@ public class Execution {
 		}
 		if (action instanceof TurnOnServer) {
 			serverOperations.wakeUp(sourceServerModel);
+		}
+		if (action instanceof InterCloudMigration) {
+			Datacenter dataCenter = CloudManagerFactory.getDatacenter();
+			vmService.interCloudMigrate(vmModel, dataCenter);
 		}
 	}
 }

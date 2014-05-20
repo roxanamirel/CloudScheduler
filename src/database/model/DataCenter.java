@@ -27,6 +27,9 @@ public class DataCenter
 	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
 	private List<VirtualMachine> VMPool;
 	
+	@OneToMany(mappedBy = "dataCenter", cascade = CascadeType.ALL)
+	private List<Rack> rack;
+	
 	private List<Policy> policyPool;
 	
 	public List<Resource> getAllResources()
@@ -85,4 +88,17 @@ public class DataCenter
 	public void setPolicyPool(List<Policy> policyPool) {
 		this.policyPool = policyPool;
 	}
+	/**
+	 * @return the rack
+	 */
+	public List<Rack> getRack() {
+		return rack;
+	}
+	/**
+	 * @param rack the rack to set
+	 */
+	public void setRack(List<Rack> rack) {
+		this.rack = rack;
+	}
+	
 }

@@ -3,11 +3,11 @@ package monitoring.util;
 import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
-import monitoring.types.Type;
+import monitoring.types.ReferenceModelType;
 
 public class ResourceFactory {
 
-	public static Resource create(Type resourceType) {
+	public static Resource create(ReferenceModelType resourceType) {
 		Resource resource = null;
 		switch (resourceType)
 		{

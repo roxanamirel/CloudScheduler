@@ -35,13 +35,13 @@ public class Cleaner {
 		List<VirtualMachine> vms = facade.findAll();
 
 		for (VirtualMachine virtualMachine : vms) {
-			facade.delete(virtualMachine);
 			try {
 				VMModel vmModel = vmService.getById(virtualMachine.getID());
 				vmService.delete(vmModel);
 			} catch (ServiceCenterAccessException e) {
 				CloudLogger.getInstance().LogInfo(e.getMessage());
 			}
+			facade.delete(virtualMachine);
 		}
 	}
 

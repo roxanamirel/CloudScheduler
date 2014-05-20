@@ -8,6 +8,7 @@ import java.util.List;
 
 public class RuleFileMapperReader {
 	private static final String FILE_PATH = "/var/lib/one/workspace/CloudScheduler/src/reasoning/rules";
+
 	/*
 	 * each line has the form: RULE_NAME WEIGHT PARAM1 PARAM2 ...
 	 */
@@ -29,6 +30,8 @@ public class RuleFileMapperReader {
 					rule.setName(RuleName.SERVER_POLICY);
 				} else if (RuleName.VM_POLICY.toString().equals(values[0])) {
 					rule.setName(RuleName.VM_POLICY);
+				} else if (RuleName.RACK_POLICY.toString().equals(values[0])) {
+					rule.setName(RuleName.RACK_POLICY);
 				}
 				try {
 					rule.setWeight(Float.parseFloat(values[1]));
@@ -42,7 +45,6 @@ public class RuleFileMapperReader {
 				rule.setParams(params);
 				rules.add(rule);
 			}
-			
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -57,12 +59,11 @@ public class RuleFileMapperReader {
 
 		return rules;
 	}
-	
-	
+
 	public static void main(String args[]) {
-		 List<RuleFileMapper> rules = readFromFile();
-		 for(RuleFileMapper r : rules){
-			 System.out.println(r.toString());
-		 }
+		List<RuleFileMapper> rules = readFromFile();
+		for (RuleFileMapper r : rules) {
+			System.out.println(r.toString());
+		}
 	}
 }

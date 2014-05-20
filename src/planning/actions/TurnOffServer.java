@@ -7,7 +7,7 @@ import database.model.VirtualMachine;
 
 public class TurnOffServer extends Action {
 
-	private static final float COST = 0;
+	private static final float COST = 210;
 
 	public TurnOffServer(Server sourceServer, Server destinationServerID,
 			VirtualMachine vMID) {

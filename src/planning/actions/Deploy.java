@@ -6,7 +6,7 @@ import database.model.VirtualMachine;
 
 public class Deploy extends Action {
 	
-	private static final float COST = 200;
+	private static final float COST = 0;
 
 	public Deploy(Server sourceServer, Server destinationServer,
 			VirtualMachine vm) {

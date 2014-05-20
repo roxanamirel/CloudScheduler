@@ -3,6 +3,7 @@ package test.monitoring;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import monitoring.MessageHelper;
@@ -41,6 +42,23 @@ public class MessageHelperTest {
 		System.out.println(b);
 		
 		assertTrue(a == b);
+	}
+	
+	@Test
+	public void test4() {
+		List<String> strings = new ArrayList<String>();
+		for (int i = 0; i < 5; i++) {
+			strings.add(String.valueOf(i));
+		}
+		
+		Iterator<String> iterator = strings.iterator();
+		while (iterator.hasNext()) {
+			if (iterator.next().equals("2")) {
+				iterator.remove();
+			}
+		}		
+		
+		assertEquals(4, strings.size());
 	}
 	
 	

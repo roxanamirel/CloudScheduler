@@ -23,7 +23,8 @@ public class VirtualMachine extends ApplicationResource {
 
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private Server host;
-
+	
+	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
 	private HDD HDD;
 
 	public VirtualMachine() {

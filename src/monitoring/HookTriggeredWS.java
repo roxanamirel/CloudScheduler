@@ -4,7 +4,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebService;
 
 import monitoring.command.Command;
-import monitoring.types.Type;
+import monitoring.types.ReferenceModelType;
 
 @WebService
 public class HookTriggeredWS {
@@ -19,10 +19,9 @@ public class HookTriggeredWS {
 	@WebMethod
 	public void addMessageToQueue(String id, String type, String command) {
 
-		Type typeT = MessageHelper.getType(type);
+		ReferenceModelType typeT = MessageHelper.getType(type);
 		Command commandC = MessageHelper.getCommand(command);
 		Message message = new Message(id, typeT, commandC);
 		queueProcessor.addTOQueue(message);
 	}
-
 }

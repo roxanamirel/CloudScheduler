@@ -65,7 +65,7 @@ public class ServerPolicy extends Policy {
 				- server.getCPU().getTotalFrequency());
 		// double absHDD = Math.abs(optimalLoad.getHDD().getCapacity()
 		// - server.getHDD().getCapacity());
-		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2)) + 100;
+		return (float) Math.sqrt(Math.pow(absRam, 2) + Math.pow(absCPU, 2));
 		/* + Math.pow(absHDD, 2)); */
 	}
 

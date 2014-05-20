@@ -10,7 +10,9 @@ import java.util.PriorityQueue;
 
 import planning.actions.Action;
 import planning.actions.Deploy;
+import planning.actions.InterCloudMigration;
 import planning.actions.Migrate;
+import planning.actions.TurnOffRack;
 import planning.actions.TurnOffServer;
 import planning.actions.TurnOnServer;
 
@@ -20,6 +22,7 @@ import reasoning.Evaluator;
 import reasoning.policies.PolicyInstance;
 import util.ServerState;
 import database.model.DataCenter;
+import database.model.Rack;
 import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
@@ -50,6 +53,8 @@ public class ReinforcementLearning {
 	 */
 	private List<Action> reinforcementLearning(PriorityQueue<Node> pQueue,
 			Node highestRewardNode) {
+		CloudLogger.getInstance().LogInfo(
+				"-----------------------------------------------------");
 		Node currentNode = pQueue.poll();
 		if (currentNode == null) {
 			return highestRewardNode.getActionSequence();
@@ -59,7 +64,6 @@ public class ReinforcementLearning {
 		}
 		if ((highestRewardNode == null)
 				|| (currentNode.getReward() > highestRewardNode.getReward())) {
-			highestRewardNode = currentNode;
 
 			// 1. compute data center for current node
 			SimulateAction simulation = new SimulateAction(dataCenter);
@@ -68,8 +72,10 @@ public class ReinforcementLearning {
 			Evaluator evaluator = new Evaluator(dataCenter);
 			List<PolicyInstance> broken_GPI_KPI_Policies = evaluator
 					.getViolatedPolicies();
-
-			// 3. undo actions on data center
+			// highestRewardNode = containsTurnOff(currentNode)
+			// && getPendingVMs(broken_GPI_KPI_Policies) > 0 ? highestRewardNode
+			// : currentNode;
+			highestRewardNode = currentNode;
 			Node nextNode = null;
 
 			// 4. iterate through policies
@@ -84,18 +90,23 @@ public class ReinforcementLearning {
 							dataCenter, vm);
 					if (deploymentServer != null) {
 						nextNode = generateLeaf(currentNode, Command.DEPLOY,
-								null, deploymentServer, vm);
+								null, deploymentServer, vm, null);
+						pQueue.add(nextNode);
 					} else {
 						// need to wake-up one server
 						deploymentServer = findServerToWakeUp(dataCenter);
 						if (deploymentServer != null) {
 							nextNode = generateLeaf(currentNode,
 									Command.WAKEUP, deploymentServer, null,
-									null);
+									null, null);
+							pQueue.add(nextNode);
 						} else {
-							System.out.println("intercloud mig");
 							// data center cannot fit any more VM's => need
 							// INTER CLOUD MIGRATION!!!
+							nextNode = generateLeaf(currentNode,
+									Command.INTERCLOUDMIGRATE, null, null, vm,
+									null);
+							pQueue.add(nextNode);
 						}
 					}
 				}
@@ -104,11 +115,13 @@ public class ReinforcementLearning {
 					if (server.getRunningVMs().size() == 0) {
 						// shut down server
 						nextNode = generateLeaf(currentNode, Command.SHUTDOWN,
-								server, null, null);
+								server, null, null, null);
+						pQueue.add(nextNode);
 					} else {
 
 						List<VirtualMachine> copy = new ArrayList<VirtualMachine>(
 								server.getRunningVMs());
+						// for?
 						VirtualMachine vmCopy = copy.get(copy.size() - 1);
 						Server deploymentServer = findBestMatchingServer(
 								dataCenter, vmCopy);
@@ -117,23 +130,92 @@ public class ReinforcementLearning {
 							if (deploymentServer != null) {
 								nextNode = generateLeaf(currentNode,
 										Command.WAKEUP, deploymentServer, null,
-										null);
+										null, null);
+								pQueue.add(nextNode);
+							} else {
+								// data center cannot fit any more VM's => need
+								// INTER CLOUD MIGRATION!!!
+
 							}
-							// else intercloud TODO
 						} else if (deploymentServer.getID() != server.getID()) {
 							nextNode = generateLeaf(currentNode,
 									Command.MIGRATE, server, deploymentServer,
-									vmCopy);
+									vmCopy, null);
+							pQueue.add(nextNode);
 						}
 					}
 				}
-				pQueue.add(nextNode);
+				if (subject instanceof Rack) {
+					Rack rack = (Rack) subject;
+					if (rack.getServers().size() == 0) {
+						// shut down rack
+						nextNode = generateLeaf(currentNode,
+								Command.SHUTDOWN_RACK, null, null, null, rack);
+						pQueue.add(nextNode);
+					} else {
+						/*
+						 * Find best matching rack If there are servers that
+						 * accept VM, migrate some of the VMs there
+						 */
+						List<Server> rackServers = rack.getServers();
+						Iterator<Server> it = rackServers.iterator();
+						List<VirtualMachine> toMigrate = new ArrayList<VirtualMachine>();
+						// iterate through servers from this rack
+						while (it.hasNext()) {
+							Server aux = it.next();
+							// add all VMs to an array
+							toMigrate.addAll(aux.getRunningVMs());
+						}
+						Iterator<VirtualMachine> itVM = toMigrate.iterator();
+						// iterate through the local VMs to be migrated
+						while (itVM.hasNext()) {
+							VirtualMachine vm = itVM.next();
+							Server deploymentServer = findBestMatchingServerInRack(
+									dataCenter, rack, vm);
+							if (deploymentServer != null) {
+								nextNode = generateLeaf(currentNode,
+										Command.MIGRATE, vm.getHost(),
+										deploymentServer, vm, null);
+								pQueue.add(nextNode);
+							} else {
+								// need to wake-up one server
+								deploymentServer = findServerToWakeUpForRack(
+										dataCenter, rack);
+								if (deploymentServer != null) {
+									nextNode = generateLeaf(currentNode,
+											Command.WAKEUP, deploymentServer,
+											null, null, null);
+									pQueue.add(nextNode);
+								}
+							}
+						}
+					}
+				}
+				// pQueue.add(nextNode);
 			}
 			dataCenter = simulation
 					.undoActions(currentNode.getActionSequence());
 		}
 
 		return reinforcementLearning(pQueue, highestRewardNode);
+	}
+
+	private boolean containsTurnOff(Node currentNode) {
+		for (Action action : currentNode.getActionSequence()) {
+			if (action instanceof TurnOffServer)
+				return true;
+		}
+		return false;
+	}
+
+	private int getPendingVMs(List<PolicyInstance> broken_GPI_KPI_Policies) {
+		int count = 0;
+		for (PolicyInstance policyInstance : broken_GPI_KPI_Policies) {
+			if (policyInstance.getResource() instanceof VirtualMachine) {
+				count++;
+			}
+		}
+		return count;
 	}
 
 	private void executeActions(List<Action> finalActions) {
@@ -146,6 +228,8 @@ public class ReinforcementLearning {
 		Execution execution = new Execution();
 		execution.updateDatabase(dataCenter, finalActions);
 		execution.executeActions(finalActions);
+		
+		
 	}
 
 	/**
@@ -228,6 +312,19 @@ public class ReinforcementLearning {
 		return null;
 	}
 
+	private Server findServerToWakeUpForRack(DataCenter dataCenter2, Rack rack) {
+		List<Server> allServers = dataCenter.getServerPool();
+		for (Server server : allServers) {
+			if ((server.getRack().getID() != rack.getID())
+					&& (server.getRack().isOn()))
+				if (server.getState().equals(ServerState.OFF.toString())) {
+					server.setState(ServerState.ON.toString());
+					return server;
+				}
+		}
+		return null;
+	}
+
 	/**
 	 * Iterate through all servers from the data center find server that is best
 	 * filled by the VM in a greedy manner BEST FIT
@@ -262,6 +359,41 @@ public class ReinforcementLearning {
 				}
 			}
 		}
+		return bestServer; 
+	}
+
+	private Server findBestMatchingServerInRack(DataCenter dataCenter2,
+			Rack rack, VirtualMachine vm) {
+		List<Server> allServers = dataCenter.getServerPool();
+		float bestRemainingResources = Float.MAX_VALUE;
+		Server bestServer = null;
+		for (Server server : allServers) {
+			if (server.getRack().getID() != rack.getID()) {
+				if (server.getState().equals(ServerState.ON.toString())) {
+					float availableRAMCapacity = (server
+							.getAvailableRAMCapacity() - vm.getRAM()
+							.getCapacity())
+							/ server.getRAM().getCapacity();
+					float availableCPUFrequency = (server
+							.getAvailableCPUFrequency() - vm.getCPU()
+							.getTotalFrequency())
+							/ server.getCPU().getTotalFrequency();
+					assert (availableCPUFrequency <= 1.0 && availableRAMCapacity <= 1.0);
+					// use euclidean distance
+					float availableResources = availableRAMCapacity
+							* availableRAMCapacity + availableCPUFrequency
+							* availableCPUFrequency;
+					if (availableResources < bestRemainingResources
+							&& availableRAMCapacity > 0
+							&& availableCPUFrequency > 0) {
+						if (!breaksPolicies(server, vm)) {
+							bestRemainingResources = availableResources;
+							bestServer = server;
+						}
+					}
+				}
+			}
+		}
 		return bestServer;
 	}
 
@@ -269,25 +401,19 @@ public class ReinforcementLearning {
 	private boolean breaksPolicies(Server server, VirtualMachine vm) {
 		float min_CPU = 20;
 		float min_RAM = 30;
-		float max_CPU = 80;
-		float max_RAM = 90;
 		float minCPU = min_CPU / 100 * server.getCPU().getTotalFrequency();
-		float maxCPU = max_CPU / 100 * server.getCPU().getTotalFrequency();
 		float minRAM = min_RAM / 100 * server.getRAM().getCapacity();
-		float maxRAM = max_RAM / 100 * server.getRAM().getCapacity();
 
 		float availableCPUFrequency = server.getAvailableCPUFrequency()
 				- vm.getCPU().getTotalFrequency();
 		float availableRAMCapacity = server.getAvailableRAMCapacity()
 				- vm.getRAM().getCapacity();
 
-		return !(availableCPUFrequency > minCPU
-				&& availableCPUFrequency < maxCPU
-				&& availableRAMCapacity > minRAM && availableRAMCapacity < maxRAM);
+		return (availableCPUFrequency < minCPU || availableRAMCapacity < minRAM);
 	}
 
 	private Node generateLeaf(Node currentNode, Command command, Server src,
-			Server dest, VirtualMachine vm) {
+			Server dest, VirtualMachine vm, Rack rack) {
 		Action action = null;
 
 		float oldEntropy = currentNode.getEntropy();
@@ -304,6 +430,12 @@ public class ReinforcementLearning {
 			break;
 		case SHUTDOWN:
 			action = new TurnOffServer(src, dest, vm);
+			break;
+		case SHUTDOWN_RACK:
+			action = new TurnOffRack(src, dest, vm, rack);
+			break;
+		case INTERCLOUDMIGRATE:
+			action = new InterCloudMigration(src, dest, vm);
 			break;
 		}
 		// 1. compute data center for current node
@@ -372,8 +504,12 @@ public class ReinforcementLearning {
 									destinationServer, vm);
 							actionSequence.add(action);
 							break;
+						} else {
+							Action action = new InterCloudMigration(null, null,
+									vm);
+							actionSequence.add(action);
+							break;
 						}
-						// else TODO intercloud
 					} else {
 						Action action = new Migrate(server, destinationServer,
 								vm);
