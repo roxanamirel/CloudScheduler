@@ -10,7 +10,6 @@ import javax.swing.JRadioButton;
 
 import planning.actions.Action;
 import planning.actions.InterCloudMigration;
-
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import database.facade.VirtualMachineFacade;
@@ -20,6 +19,7 @@ import database.model.VirtualMachine;
 import execution.Execution;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -38,7 +38,6 @@ public class CloudManagerGui {
 	private JRadioButton dataCenterRadioButtonSelected;
 	private JRadioButton vmRadioButtonSelected;
 	private DataCenter datacenter;
-
 	public static CloudManagerGui getInstance() {
 		if (instance == null) {
 			instance = new CloudManagerGui();
@@ -59,6 +58,7 @@ public class CloudManagerGui {
 		emptyLabel.setPreferredSize(prefDimension);
 
 		serverPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
+		serverPanel.setBackground(Color.WHITE);
 
 		pane.add(serverPanel, BorderLayout.WEST);
 
@@ -115,13 +115,20 @@ public class CloudManagerGui {
 			JPanel serverPanel = new JPanel();
 			serverPanel.setLayout(new GridLayout(
 					server.getRunningVMs().size() + 1, 1));
+			serverPanel.setBackground(Color.lightGray);
+			
+			JPanel vmPanel = new JPanel();
+			vmPanel.setLayout(new GridLayout(
+					server.getRunningVMs().size() + 1, 1));
+			vmPanel.setBackground(Color.GREEN);			
 			for (VirtualMachine virtualMachine : server.getRunningVMs()) {
-				JRadioButton vmRadioButton = new JRadioButton("VM:  "
+				JRadioButton vmRadioButton = new JRadioButton(""
 						+ virtualMachine.getID());
-				vmRadioButton.addActionListener(new VMRadioButtonListener());
-				vmGroup.add(vmRadioButton);
-				serverPanel.add(vmRadioButton);
+				vmRadioButton.addActionListener(new VMRadioButtonListener());				
+				vmGroup.add(vmRadioButton);				
+				vmPanel.add(vmRadioButton);
 			}
+			serverPanel.add(vmPanel);
 			serverPanel.add(new JLabel("Server: " + server.getID()));
 			serverJPanels.add(serverPanel);
 		}
@@ -154,6 +161,8 @@ public class CloudManagerGui {
 					"--------------------------------------------------");
 			CloudLogger.getInstance().LogInfo(
 					action.toString() + " will be executed ...");
+			
+			
 
 		}
 	}
