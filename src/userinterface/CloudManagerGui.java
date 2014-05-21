@@ -10,6 +10,7 @@ import javax.swing.JRadioButton;
 
 import planning.actions.Action;
 import planning.actions.InterCloudMigration;
+import tcp.TCPServer;
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import database.facade.VirtualMachineFacade;
@@ -47,6 +48,10 @@ public class CloudManagerGui {
 
 	private CloudManagerGui() {
 
+		TCPServer server = new TCPServer();
+		Thread t = new Thread(server);
+		t.start();
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 492, 343);
 		frame.getContentPane().setLayout(new BorderLayout());
