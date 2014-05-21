@@ -18,7 +18,6 @@ public class HookTriggeredWS {
 
 	@WebMethod
 	public void addMessageToQueue(String id, String type, String command) {
-
 		ReferenceModelType typeT = MessageHelper.getType(type);
 		Command commandC = MessageHelper.getCommand(command);
 		Message message = new Message(id, typeT, commandC);

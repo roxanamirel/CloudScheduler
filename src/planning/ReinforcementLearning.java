@@ -27,6 +27,7 @@ import database.model.Resource;
 import database.model.Server;
 import database.model.VirtualMachine;
 import execution.Execution;
+import userinterface.CloudManagerGui;
 
 public class ReinforcementLearning {
 
@@ -53,8 +54,6 @@ public class ReinforcementLearning {
 	 */
 	private List<Action> reinforcementLearning(PriorityQueue<Node> pQueue,
 			Node highestRewardNode) {
-		CloudLogger.getInstance().LogInfo(
-				"-----------------------------------------------------");
 		Node currentNode = pQueue.poll();
 		if (currentNode == null) {
 			return highestRewardNode.getActionSequence();
@@ -64,6 +63,8 @@ public class ReinforcementLearning {
 		}
 		if ((highestRewardNode == null)
 				|| (currentNode.getReward() > highestRewardNode.getReward())) {
+			CloudLogger.getInstance().LogInfo(
+					"-----------------------------------------------------");
 
 			// 1. compute data center for current node
 			SimulateAction simulation = new SimulateAction(dataCenter);
@@ -200,24 +201,6 @@ public class ReinforcementLearning {
 		return reinforcementLearning(pQueue, highestRewardNode);
 	}
 
-	private boolean containsTurnOff(Node currentNode) {
-		for (Action action : currentNode.getActionSequence()) {
-			if (action instanceof TurnOffServer)
-				return true;
-		}
-		return false;
-	}
-
-	private int getPendingVMs(List<PolicyInstance> broken_GPI_KPI_Policies) {
-		int count = 0;
-		for (PolicyInstance policyInstance : broken_GPI_KPI_Policies) {
-			if (policyInstance.getResource() instanceof VirtualMachine) {
-				count++;
-			}
-		}
-		return count;
-	}
-
 	private void executeActions(List<Action> finalActions) {
 		finalActions = combineActions(finalActions);
 		for (Action action : finalActions) {
@@ -228,8 +211,7 @@ public class ReinforcementLearning {
 		Execution execution = new Execution();
 		execution.updateDatabase(dataCenter, finalActions);
 		execution.executeActions(finalActions);
-		
-		
+		CloudManagerGui.getInstance().update(dataCenter);
 	}
 
 	/**
@@ -359,7 +341,7 @@ public class ReinforcementLearning {
 				}
 			}
 		}
-		return bestServer; 
+		return bestServer;
 	}
 
 	private Server findBestMatchingServerInRack(DataCenter dataCenter2,
