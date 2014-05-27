@@ -8,14 +8,15 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "VirtualMachine")
-public class VirtualMachine extends ApplicationResource {
+public class VirtualMachine extends ApplicationResource implements
+		Comparable<VirtualMachine> {
 	@Id
 	private int ID;
 
-	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private CPU CPU;
 
-	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private RAM RAM;
 
 	@OneToOne(cascade = CascadeType.PERSIST)
@@ -23,8 +24,8 @@ public class VirtualMachine extends ApplicationResource {
 
 	@OneToOne(cascade = CascadeType.PERSIST)
 	private Server host;
-	
-	@OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
+
+	@OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
 	private HDD HDD;
 
 	public VirtualMachine() {
@@ -47,8 +48,15 @@ public class VirtualMachine extends ApplicationResource {
 		this.host = host;
 		HDD = hDD;
 	}
-	
-	/* (non-Javadoc)
+
+	@Override
+	public int compareTo(VirtualMachine other) {
+		return ((Integer) this.getID()).compareTo((Integer) other.ID);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -140,5 +148,4 @@ public class VirtualMachine extends ApplicationResource {
 	public void setDataCenter(DataCenter dataCenter) {
 		this.dataCenter = dataCenter;
 	}
-
 }

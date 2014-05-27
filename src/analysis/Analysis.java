@@ -23,7 +23,7 @@ public class Analysis {
 		decidePlanning(entropy);
 	}
 
-	private DataCenter recreateModel() {
+	public DataCenter recreateModel() {
 		FacadeFactory facadeFactory = new FacadeFactory();
 		return facadeFactory.createDataCenterFacade().findAll().get(0);
 	}
@@ -40,6 +40,9 @@ public class Analysis {
 			CloudLogger.getInstance().LogInfo(
 					"Starting Reinforcement Learning...");
 			new ReinforcementLearning(dataCenter, entropy);
+		} else {
+			CloudLogger.getInstance().LogInfo(
+					"No need for the algorithm to start, system is optimal");
 		}
 	}
 

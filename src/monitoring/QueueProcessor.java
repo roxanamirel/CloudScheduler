@@ -28,8 +28,8 @@ public class QueueProcessor extends Thread {
 	@Override
 	public void run() {
 		while (true) {
-			//CloudLogger.getInstance().LogInfo("Waiting for VM's");
-			
+			// CloudLogger.getInstance().LogInfo("Waiting for VM's");
+
 			while (!incoming.isEmpty()) {
 				try {
 					Thread.sleep(1000);
@@ -81,8 +81,10 @@ public class QueueProcessor extends Thread {
 					dataCenter.getVMPool().remove(vm);
 					dataCenter = facadeFactory.createDataCenterFacade().update(
 							dataCenter);
-					host.getRunningVMs().remove(vm);
-					host = facadeFactory.createServerFacade().update(host);
+					if (host != null) {
+						host.getRunningVMs().remove(vm);
+						host = facadeFactory.createServerFacade().update(host);
+					}
 				}
 				break;
 

@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.TreeSet;
 
 import planning.actions.Action;
 import planning.actions.Deploy;
@@ -34,13 +36,29 @@ public class ReinforcementLearning {
 	private DataCenter dataCenter;
 	private PriorityQueue<Node> pQueue;
 	private float THRESHOLD_ENTROPY = 0;
+	private Set<VirtualMachine> pendingVms;
 
 	public ReinforcementLearning(DataCenter dataCenter, float entropy) {
 		this.dataCenter = dataCenter;
+		this.pendingVms = new TreeSet<VirtualMachine>();
 		this.pQueue = constructPriorityQueue(entropy);
-		List<Action> finalActions = new ArrayList<Action>(
-				reinforcementLearning(pQueue, null));
-		executeActions(finalActions);
+		if (!this.pQueue.isEmpty()) {
+			List<Action> finalActions = new ArrayList<Action>(
+					reinforcementLearning(pQueue, null));
+			executeActions(finalActions);
+		}
+		
+		printPendingVirtualMachines();
+	}
+
+	private void printPendingVirtualMachines() {
+		if (!pendingVms.isEmpty()) {
+			CloudLogger.getInstance().LogInfo("Pending virtual machines: ");
+			for (VirtualMachine vm : pendingVms) {
+				CloudLogger.getInstance().LogInfo(
+						vm.getID() + " " + vm.getName());
+			}
+		}
 	}
 
 	/**
@@ -56,7 +74,8 @@ public class ReinforcementLearning {
 			Node highestRewardNode) {
 		Node currentNode = pQueue.poll();
 		if (currentNode == null) {
-			return highestRewardNode.getActionSequence();
+			return highestRewardNode == null ? new ArrayList<Action>()
+					: highestRewardNode.getActionSequence();
 		}
 		if (currentNode.getEntropy() <= THRESHOLD_ENTROPY) {
 			return currentNode.getActionSequence();
@@ -104,10 +123,11 @@ public class ReinforcementLearning {
 						} else {
 							// data center cannot fit any more VM's => need
 							// INTER CLOUD MIGRATION!!!
-							nextNode = generateLeaf(currentNode,
-									Command.INTERCLOUDMIGRATE, null, null, vm,
-									null);
-							pQueue.add(nextNode);
+							// nextNode = generateLeaf(currentNode,
+							// Command.INTERCLOUDMIGRATE, null, null, vm,
+							// null);
+							this.pendingVms.add(vm);
+							// pQueue.add(nextNode);
 						}
 					}
 				}
@@ -466,6 +486,9 @@ public class ReinforcementLearning {
 						actionSequence.add(turnOn);
 						actionSequence.add(deploy);
 						break;
+					} else {
+						this.pendingVms.add(vm);
+						break;
 					}
 				}
 			} else if (subject instanceof Server) {
@@ -487,9 +510,12 @@ public class ReinforcementLearning {
 							actionSequence.add(action);
 							break;
 						} else {
-							Action action = new InterCloudMigration(null, null,
-									vm);
-							actionSequence.add(action);
+							// Action action = new Migrate(server,
+							// getFirstOtherServer(server), vm);
+							// // Action action = new InterCloudMigration(null,
+							// // null,vm);
+							//
+							// actionSequence.add(action);
 							break;
 						}
 					} else {
@@ -501,10 +527,22 @@ public class ReinforcementLearning {
 				}
 			}
 		}
-		Node root = constructRoot(oldEntropy, evaluator, actionSequence);
 		PriorityQueue<Node> queue = new PriorityQueue<Node>();
-		queue.add(root);
+		if (!actionSequence.isEmpty()) {
+			Node root = constructRoot(oldEntropy, evaluator, actionSequence);
+			queue.add(root);
+		}
+
 		return queue;
+	}
+
+	private Server getFirstOtherServer(Server server) {
+		for (Server other : dataCenter.getServerPool()) {
+			if (other.getID() != server.getID())
+				return other;
+		}
+		return server;
+
 	}
 
 	private Node constructRoot(float oldEntropy, Evaluator evaluator,
