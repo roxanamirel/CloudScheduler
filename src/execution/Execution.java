@@ -118,7 +118,7 @@ public class Execution {
 		for (Action action : listAction) {
 			execute(action);
 		}
-		CloudLogger.getInstance().LogInfo("Finished executing actions");
+		CloudLogger.getInstance().LogInfo("Finished executing actions.\n");
 	}
 
 	@SuppressWarnings("static-access")

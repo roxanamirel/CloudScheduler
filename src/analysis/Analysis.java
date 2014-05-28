@@ -38,11 +38,11 @@ public class Analysis {
 	private void decidePlanning(float entropy) {
 		if (entropy > THRESHOLD) {
 			CloudLogger.getInstance().LogInfo(
-					"Starting Reinforcement Learning...");
+					"Starting Reinforcement Learning...\n");
 			new ReinforcementLearning(dataCenter, entropy);
 		} else {
 			CloudLogger.getInstance().LogInfo(
-					"No need for the algorithm to start, system is optimal");
+					"No need for the algorithm to start, system is optimal\n");
 		}
 	}
 
