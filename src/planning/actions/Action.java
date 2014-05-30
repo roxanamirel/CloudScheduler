@@ -1,5 +1,6 @@
 package planning.actions;
 
+import GUI.DataCenterInterface;
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
 import database.model.DataCenter;
@@ -20,6 +21,7 @@ public abstract class Action {
 		this.vm = vm;
 		this.facadeFactory = new FacadeFactory();
 		CloudLogger.getInstance().LogInfo("Simulating " + this);
+		DataCenterInterface.getInstance().printlnText("Simulating " + this);
 	}
 	
 	public Action(Server sourceServer, Server destinationServer,

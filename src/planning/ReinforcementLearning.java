@@ -10,6 +10,8 @@ import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
 
+import GUI.DataCenterInterface;
+
 import planning.actions.Action;
 import planning.actions.Deploy;
 import planning.actions.InterCloudMigration;
@@ -54,8 +56,11 @@ public class ReinforcementLearning {
 	private void printPendingVirtualMachines() {
 		if (!pendingVms.isEmpty()) {
 			CloudLogger.getInstance().LogInfo("Pending virtual machines: ");
+			DataCenterInterface.getInstance().printlnText("Pending virtual machines: ");
 			for (VirtualMachine vm : pendingVms) {
 				CloudLogger.getInstance().LogInfo(
+						vm.getID() + " " + vm.getName());
+				DataCenterInterface.getInstance().printlnText(
 						vm.getID() + " " + vm.getName());
 			}
 		}
@@ -83,6 +88,8 @@ public class ReinforcementLearning {
 		if ((highestRewardNode == null)
 				|| (currentNode.getReward() > highestRewardNode.getReward())) {
 			CloudLogger.getInstance().LogInfo(
+					"-----------------------------------------------------");
+			DataCenterInterface.getInstance().printlnText(
 					"-----------------------------------------------------");
 
 			// 1. compute data center for current node
@@ -226,12 +233,15 @@ public class ReinforcementLearning {
 		for (Action action : finalActions) {
 			CloudLogger.getInstance().LogInfo(
 					action.toString() + " will be executed ...");
+			DataCenterInterface.getInstance().printlnText(
+					action.toString() + " will be executed ...");
 		}
 
 		Execution execution = new Execution();
 		execution.updateDatabase(dataCenter, finalActions);
 		execution.executeActions(finalActions);
-		CloudManagerGui.getInstance().update(dataCenter);
+		//CloudManagerGui.getInstance().update(dataCenter);
+		DataCenterInterface.getInstance().updateGraphics(dataCenter);
 	}
 
 	/**

@@ -42,6 +42,11 @@ public class Cleaner {
 				CloudLogger.getInstance().LogInfo(e.getMessage());
 			}
 			facade.delete(virtualMachine);
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

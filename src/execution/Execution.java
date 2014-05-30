@@ -2,6 +2,8 @@ package execution;
 
 import java.util.List;
 
+import GUI.DataCenterInterface;
+
 import database.facade.ServerFacade;
 import database.facade.VirtualMachineFacade;
 import database.model.DataCenter;
@@ -119,6 +121,7 @@ public class Execution {
 			execute(action);
 		}
 		CloudLogger.getInstance().LogInfo("Finished executing actions.\n");
+		DataCenterInterface.getInstance().printlnText("Finished executing actions.\n");
 	}
 
 	@SuppressWarnings("static-access")
@@ -127,6 +130,7 @@ public class Execution {
 		ServerModel sourceServerModel = null;
 		VMModel vmModel = null;
 		CloudLogger.getInstance().LogInfo("Executing " + action.toString());
+		DataCenterInterface.getInstance().printlnText("Executing " + action.toString());
 		try {
 			if (action.getDestinationServer() != null) {
 				destServerModel = serverService.getById(action

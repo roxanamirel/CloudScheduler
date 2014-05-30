@@ -2,6 +2,7 @@ package monitoring;
 
 import java.util.concurrent.LinkedBlockingDeque;
 
+import GUI.DataCenterInterface;
 import analysis.Analysis;
 import logger.CloudLogger;
 import monitoring.util.FacadeFactory;
@@ -39,6 +40,7 @@ public class QueueProcessor extends Thread {
 				Message message = incoming.pollFirst();
 				CloudLogger.getInstance().LogInfo(
 						"Processing " + message.toString());
+				DataCenterInterface.getInstance().printlnText("Processing " + message.toString());
 				writeMessageToDB(message);
 				changes = true;
 			}
