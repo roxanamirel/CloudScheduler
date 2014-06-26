@@ -38,9 +38,7 @@ import database.model.VirtualMachine;
  * clients. Besides this, there is also some other information sent and
  * displayed in order to follow easier the simulation: clients name for waiting
  * customers and service time for customers in queue
- * 
- * @author Antal Marcel
- * 
+ *  
  */
 public class EagleEye extends JPanel implements MouseListener {
 

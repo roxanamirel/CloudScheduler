@@ -105,6 +105,8 @@ public class MigrationFrame extends JFrame implements ActionListener{
 					"--------------------------------------------------");
 			CloudLogger.getInstance().LogInfo(
 					action.toString() + " will be executed ...");
+			setVisible(false); //you can't see me!
+			dispose(); //Destroy the JFrame object
 		}
 		if(source == cancel){
 			setVisible(false); //you can't see me!
